@@ -20,7 +20,7 @@ class TwitterNews:
 
     def login(self):
         login = Login(self.driver)
-        login.login_user()
+        login.start()
 
     def get_trends(self):
         trending = TrendingTopics(self.driver, self.on_trends_obtained)
