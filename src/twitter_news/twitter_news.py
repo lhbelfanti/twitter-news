@@ -2,7 +2,8 @@ import time
 from selenium import webdriver
 from constants import constants
 from login import Login
-from trending import TrendingTopics
+from trends import TrendsScrapper
+from tweets import TweetsScrapper
 
 
 class TwitterNews:
@@ -23,9 +24,9 @@ class TwitterNews:
         login.start()
 
     def get_trends(self):
-        trending = TrendingTopics(self.driver, self.on_trends_obtained)
-        trending.start()
+        trends_scrapper = TrendsScrapper(self.driver, self.on_trends_obtained)
+        trends_scrapper.start()
 
     def on_trends_obtained(self, trends):
-        print("---")
-        print(trends)
+        tweets_scrapper = TweetsScrapper(self.driver, trends)
+        tweets_scrapper.start()

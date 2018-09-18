@@ -1,32 +1,33 @@
 import constants
 import utils
+import time
 from exceptions import ElementNotFound, LoadingTimeout
+from trends import TrendingTopic
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as Ec
 from selenium.common.exceptions import TimeoutException
 
 
-class TrendingTopics:
+class TrendsScrapper:
     def __init__(self, driver, callback):
         self.driver = driver
         self.trends = []
         self.callback = callback
+        self.element = None
 
     def start(self):
         try:
-            wait = WebDriverWait(self.driver, constants.LOADING_TIMEOUT)
-            element_loaded = Ec.presence_of_element_located((By.CLASS_NAME, constants.TRENDS_CONTAINER))
-            wait.until(element_loaded)
-            self.get_trends()
+            self.element = utils.wait_until_load(By.CLASS_NAME, constants.TRENDS_INNER_MODULE, self.driver)
+            self.get_trends_data()
         except TimeoutException:
             raise LoadingTimeout()
 
-    def get_trends(self):
+    def get_trends_data(self):
+        time.sleep(2)
+
         # Get all of the items of the list
         items = utils.get_elements_by(By.CLASS_NAME, constants.TREND_ITEM, self.driver)
+        trends_data = []
         for item in items:
-            item_obj = {}
 
             # Get information of each item
             try:
@@ -34,15 +35,12 @@ class TrendingTopics:
                 title_element = utils.get_element_by(By.CLASS_NAME, constants.TRENDS_TITLE, a_element)
                 desc_element = utils.get_element_by(By.CLASS_NAME, constants.TRENDS_DESC, a_element)
                 tweets_element = utils.get_element_by(By.CLASS_NAME, constants.TRENDS_TWEETS, a_element)
+                link_attr = a_element.get_attribute(constants.TRENDS_LINK_TAG)
             except ElementNotFound:
                 continue
 
-            item_obj["title"] = title_element.text
-            item_obj["desc"] = desc_element.text
-            item_obj["tweets"] = tweets_element.text
+            trend = TrendingTopic(title_element.text, desc_element.text, link_attr, tweets_element.text)
+            trends_data.append(trend)
 
-            items.append(item_obj)
-            print("Adding")
-            print(items)
+        self.callback(trends_data)
 
-        self.callback(items)

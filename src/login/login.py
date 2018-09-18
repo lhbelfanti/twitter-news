@@ -1,9 +1,8 @@
 import constants
 import utils
+import time
 from exceptions import LoadingTimeout
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as Ec
 from selenium.common.exceptions import TimeoutException
 
 
@@ -13,9 +12,7 @@ class Login:
 
     def start(self):
         try:
-            wait = WebDriverWait(self.driver, constants.LOADING_TIMEOUT)
-            element_loaded = Ec.presence_of_element_located((By.CLASS_NAME, constants.PASSWORD_ELEMENT))
-            wait.until(element_loaded)
+            element = utils.wait_until_load(By.CLASS_NAME, constants.PASSWORD_ELEMENT, self.driver)
             self.login_user()
         except TimeoutException:
             raise LoadingTimeout()
@@ -34,8 +31,11 @@ class Login:
 
         # Write username and password
         username_input.send_keys(constants.USERNAME)
+        time.sleep(1)  # Sometimes the password is not written, so we wait 1 sec and then we write it
         password_input.send_keys(constants.PASSWORD)
 
         # Click on submit button
         submit_button = utils.get_element_by(By.CSS_SELECTOR, constants.SUBMIT_FORM, form)
         submit_button.click()
+
+        print("Login success!")
