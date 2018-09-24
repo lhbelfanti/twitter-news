@@ -23,3 +23,26 @@ TRENDS_TWEETS = "trend-item-stats"
 TRENDS_QUERY_DATA_SOURCE = "data-query-source"
 TRENDS_PROMOTED = "promoted_trend_click"
 TRENDS_LINK_TAG = "href"
+
+# Tweets
+TWEETS_LIST = "stream-items"
+TWEET_ITEM = "stream-item"
+TWEET = "tweet"
+TWEET_TEXT = "tweet-text"
+
+# Search filter
+FILTER_CONTAINER = "SidebarFilterModule"
+FILTER_BUTTON = "SidebarFilterModule-toggle"
+FILTERS = "SidebarFilterModule-filters"
+FILTER_ATTRIBUTE = "data-filter-type"
+FILTER_SELECT = "SidebarFilterModule-select"
+FILTER_BY_SOCIAL = "social"
+FILTER_BY_LOCATION = "location"
+FILTER_BY_LANGUAGE = "language"
+FILTER_BY_QUALITY = "quality"
+FILTER_BY_SOCIAL_OPTION = "social"
+FILTER_BY_LOCATION_OPTION = "location"
+FILTER_BY_LANGUAGE_OPTION = "language"
+FILTER_BY_QUALITY_OPTION = "quality"
+
+

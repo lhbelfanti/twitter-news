@@ -12,7 +12,7 @@ class Login:
 
     def start(self):
         try:
-            element = utils.wait_until_load(By.CLASS_NAME, constants.PASSWORD_ELEMENT, self.driver)
+            utils.wait_until_load(By.CLASS_NAME, constants.PASSWORD_ELEMENT, self.driver)
             self.login_user()
         except TimeoutException:
             raise LoadingTimeout()

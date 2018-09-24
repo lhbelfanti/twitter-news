@@ -6,7 +6,6 @@ from selenium.webdriver.support import expected_conditions as Ec
 
 
 def get_element_by(by, element_id, from_item):
-    print(from_item)
     elements = from_item.find_elements(by, element_id)
     size = len(elements)
 
@@ -23,8 +22,7 @@ def get_elements_by(by, element_id, from_item):
 
 def wait_until_load(by, element_id, driver):
     return WebDriverWait(driver, constants.LOADING_TIMEOUT).until(
-        Ec.element_to_be_clickable((by, element_id))
-    )
+        Ec.element_to_be_clickable((by, element_id)))
 
 
 def get_tweets_number(msg):

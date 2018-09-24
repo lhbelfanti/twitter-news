@@ -1,28 +1,27 @@
 import time
 import utils
 import constants
-from exceptions import LoadingTimeout
+from trends import TrendFilter
 from selenium.webdriver.common.by import By
-from selenium.common.exceptions import TimeoutException
 
 
 class TweetsScrapper:
     def __init__(self, driver, trends_data):
         self.driver = driver
         self.trends_data = trends_data
+        self.stream_items = None
 
     def start(self):
         for trend in self.trends_data:
-            self.get_tweets(trend)
+            trend_filter = TrendFilter(self.driver, trend).start()
+            self.stream_items = trend_filter.stream_items
+            self.get_tweets()
 
-    def get_tweets(self, trend):
-        self.open_trend(trend.url)
+    def get_tweets(self):
+        tweets = utils.get_elements_by(By.CLASS_NAME, constants.TWEET_ITEM, self.stream_items)
+        for tweet in tweets:
+            tweet_data = utils.get_element_by(By.CLASS_NAME, constants.TWEET, tweet)
+            tweet_text = utils.get_element_by(By.CLASS_NAME, constants.TWEET_TEXT, tweet_data)
+            print(tweet_text.text)
+
         time.sleep(2)
-        pass
-
-    def open_trend(self, url):
-        self.driver.get(url)
-        try:
-            element = utils.wait_until_load(By.CLASS_NAME, constants.TRENDS_INNER_MODULE, self.driver)
-        except TimeoutException:
-            raise LoadingTimeout()

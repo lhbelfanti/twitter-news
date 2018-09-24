@@ -12,11 +12,10 @@ class TrendsScrapper:
         self.driver = driver
         self.trends = []
         self.callback = callback
-        self.element = None
 
     def start(self):
         try:
-            self.element = utils.wait_until_load(By.CLASS_NAME, constants.TRENDS_INNER_MODULE, self.driver)
+            utils.wait_until_load(By.CLASS_NAME, constants.TRENDS_INNER_MODULE, self.driver)
             self.get_trends_data()
         except TimeoutException:
             raise LoadingTimeout()
