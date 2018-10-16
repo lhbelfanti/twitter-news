@@ -1,6 +1,12 @@
-# Init
+# Configs
 TWITTER_URL = "https://twitter.com/"
 LOADING_TIMEOUT = 10
+LOGS_ENABLED = True
+
+# Tags
+LINK_TAG = "href"
+IMG_TAG = "img"
+SRC_TAG = "src"
 
 # Login
 USERNAME = ""
@@ -22,13 +28,14 @@ TRENDS_DESC = "trend-item-context"
 TRENDS_TWEETS = "trend-item-stats"
 TRENDS_QUERY_DATA_SOURCE = "data-query-source"
 TRENDS_PROMOTED = "promoted_trend_click"
-TRENDS_LINK_TAG = "href"
 
 # Tweets
 TWEETS_LIST = "stream-items"
+TWEET_USER = "account-group"
 TWEET_ITEM = "stream-item"
 TWEET = "tweet"
 TWEET_TEXT = "tweet-text"
+MEDIA_CONTAINER = "AdaptiveMedia-container"
 
 # Search filter
 FILTER_CONTAINER = "SidebarFilterModule"

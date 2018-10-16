@@ -1,10 +1,11 @@
 import sys
 import twitter_news
 import constants
+import utils
 
 args = sys.argv
 if len(args) != 3:
-    print("Twitter's user and password needed")
+    utils.log("Twitter's user and password needed")
     exit(1)
 else:
     constants.USERNAME = args[1]

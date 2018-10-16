@@ -35,3 +35,8 @@ def get_tweets_number(msg):
         return_data["data"] = splitted[0]
 
     return return_data
+
+
+def log(msg):
+    if constants.LOGS_ENABLED:
+        print(msg)

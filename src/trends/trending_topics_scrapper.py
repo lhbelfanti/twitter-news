@@ -25,21 +25,26 @@ class TrendsScrapper:
 
         # Get all of the items of the list
         items = utils.get_elements_by(By.CLASS_NAME, constants.TREND_ITEM, self.driver)
+        quantity = len(items)
+        counter = 1
         trends_data = []
         for item in items:
-
             # Get information of each item
             try:
                 a_element = utils.get_element_by(By.CLASS_NAME, constants.TREND_A_TAG, item)
                 title_element = utils.get_element_by(By.CLASS_NAME, constants.TRENDS_TITLE, a_element)
                 desc_element = utils.get_element_by(By.CLASS_NAME, constants.TRENDS_DESC, a_element)
                 tweets_element = utils.get_element_by(By.CLASS_NAME, constants.TRENDS_TWEETS, a_element)
-                link_attr = a_element.get_attribute(constants.TRENDS_LINK_TAG)
+                link_attr = a_element.get_attribute(constants.LINK_TAG)
             except ElementNotFound:
                 continue
 
-            trend = TrendingTopic(title_element.text, desc_element.text, link_attr, tweets_element.text)
+            title = title_element.text
+            trend = TrendingTopic(title, desc_element.text, link_attr, tweets_element.text)
             trends_data.append(trend)
+
+            utils.log("Trend " + str(counter) + " of " + str(quantity) + ": " + title)
+            counter += 1
 
         self.callback(trends_data)
 

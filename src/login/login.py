@@ -38,4 +38,4 @@ class Login:
         submit_button = utils.get_element_by(By.CSS_SELECTOR, constants.SUBMIT_FORM, form)
         submit_button.click()
 
-        print("Login success!")
+        utils.log("Login success!")
