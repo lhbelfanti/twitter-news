@@ -45,5 +45,3 @@ class TweetsScrapper:
             user = user.replace("'", "")
             tweet = Tweet(user, text, images)
             self.tweets.append(tweet)
-
-        time.sleep(2)

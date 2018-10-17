@@ -16,13 +16,12 @@ class TrendsScrapper:
     def start(self):
         try:
             utils.wait_until_load(By.CLASS_NAME, constants.TRENDS_INNER_MODULE, self.driver)
+            time.sleep(constants.WAIT_PAGE_LOAD)
             self.get_trends_data()
         except TimeoutException:
             raise LoadingTimeout()
 
     def get_trends_data(self):
-        time.sleep(2)
-
         # Get all of the items of the list
         items = utils.get_elements_by(By.CLASS_NAME, constants.TREND_ITEM, self.driver)
         quantity = len(items)

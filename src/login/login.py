@@ -31,7 +31,8 @@ class Login:
 
         # Write username and password
         username_input.send_keys(constants.USERNAME)
-        time.sleep(1)  # Sometimes the password is not written, so we wait 1 sec and then we write it
+        # Sometimes the password is not written, so we wait 1 sec and then we write it
+        time.sleep(constants.WAIT_PASSWORD)
         password_input.send_keys(constants.PASSWORD)
 
         # Click on submit button

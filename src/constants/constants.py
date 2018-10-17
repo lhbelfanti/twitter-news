@@ -2,6 +2,9 @@
 TWITTER_URL = "https://twitter.com/"
 LOADING_TIMEOUT = 10
 LOGS_ENABLED = True
+WAIT_PASSWORD = 1
+WAIT_PAGE_LOAD = 2
+WAIT_REFRESH = 5
 
 # Tags
 LINK_TAG = "href"
@@ -47,9 +50,9 @@ FILTER_BY_SOCIAL = "social"
 FILTER_BY_LOCATION = "location"
 FILTER_BY_LANGUAGE = "language"
 FILTER_BY_QUALITY = "quality"
-FILTER_BY_SOCIAL_OPTION = "social"
-FILTER_BY_LOCATION_OPTION = "location"
-FILTER_BY_LANGUAGE_OPTION = "language"
-FILTER_BY_QUALITY_OPTION = "quality"
+FILTER_BY_SOCIAL_OPTION = "From anyone"  # Will implement it
+FILTER_BY_LOCATION_OPTION = "Near you"
+FILTER_BY_LANGUAGE_OPTION = "Spanish (español)"
+FILTER_BY_QUALITY_OPTION = "Quality filter on"  # Will implement it
 
 
