@@ -5,6 +5,9 @@ LOGS_ENABLED = True
 WAIT_PASSWORD = 1
 WAIT_PAGE_LOAD = 2
 WAIT_REFRESH = 5
+TIMES_TO_SCROLL_TO_BOTTOM = 3
+SCROLL_PAUSE_TIME = 2
+SAVE_TO = "../out/trending_topics.json"
 
 # Tags
 LINK_TAG = "href"
@@ -41,18 +44,6 @@ TWEET_TEXT = "tweet-text"
 MEDIA_CONTAINER = "AdaptiveMedia-container"
 
 # Search filter
-FILTER_CONTAINER = "SidebarFilterModule"
-FILTER_BUTTON = "SidebarFilterModule-toggle"
-FILTERS = "SidebarFilterModule-filters"
-FILTER_ATTRIBUTE = "data-filter-type"
-FILTER_SELECT = "SidebarFilterModule-select"
-FILTER_BY_SOCIAL = "social"
-FILTER_BY_LOCATION = "location"
-FILTER_BY_LANGUAGE = "language"
-FILTER_BY_QUALITY = "quality"
-FILTER_BY_SOCIAL_OPTION = "From anyone"  # Will implement it
-FILTER_BY_LOCATION_OPTION = "Near you"
-FILTER_BY_LANGUAGE_OPTION = "Spanish (español)"
-FILTER_BY_QUALITY_OPTION = "Quality filter on"  # Will implement it
-
-
+DEFAULT_FILTER = "?vertical=default"
+LOCATION_FILTER = "&near=me"
+LANGUAGE_FILTER = "&l=es"

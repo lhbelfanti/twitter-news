@@ -45,5 +45,6 @@ class TrendsScrapper:
             utils.log("Trend " + str(counter) + " of " + str(quantity) + ": " + title)
             counter += 1
 
+        utils.log("----------------------------------------")
         self.callback(trends_data)
 

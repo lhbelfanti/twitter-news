@@ -13,6 +13,7 @@ class TwitterNews:
         self.driver = webdriver.Chrome()
         self.driver.get(constants.TWITTER_URL)
         utils.log(self.driver.title)
+        utils.log("----------------------------------------")
 
     def start(self):
         self.login()
@@ -25,6 +26,7 @@ class TwitterNews:
         utils.log("Logging in...")
         login = Login(self.driver)
         login.start()
+        utils.log("----------------------------------------")
 
     def get_trends(self):
         utils.log("Getting trends...")
@@ -35,3 +37,7 @@ class TwitterNews:
         utils.log("Getting tweets...")
         tweets_scrapper = TweetsScrapper(self.driver, trends)
         tweets_scrapper.start()
+        utils.log("----------------------------------------")
+        utils.log("Saving to json...")
+        tweets_scrapper.save_to_json()
+        utils.log("----------------------------------------")
