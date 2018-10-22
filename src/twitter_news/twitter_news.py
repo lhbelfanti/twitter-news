@@ -18,8 +18,6 @@ class TwitterNews:
     def start(self):
         self.login()
         self.get_trends()
-
-        time.sleep(100)
         self.driver.close()
 
     def login(self):
