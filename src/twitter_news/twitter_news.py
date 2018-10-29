@@ -1,7 +1,7 @@
-import time
 from selenium import webdriver
 import utils
 import constants
+from logger import Logger
 from login import Login
 from trends import TrendsScrapper
 from tweets import TweetsScrapper
@@ -9,11 +9,11 @@ from tweets import TweetsScrapper
 
 class TwitterNews:
     def __init__(self):
-        utils.log("Opening Twitter...")
+        Logger.info("Opening Twitter...")
         self.driver = webdriver.Chrome()
         self.driver.get(constants.TWITTER_URL)
-        utils.log(self.driver.title)
-        utils.log("----------------------------------------")
+        Logger.info(self.driver.title)
+        Logger.info("----------------------------------------")
 
     def start(self):
         self.login()
@@ -21,21 +21,21 @@ class TwitterNews:
         self.driver.close()
 
     def login(self):
-        utils.log("Logging in...")
+        Logger.info("Logging in...")
         login = Login(self.driver)
         login.start()
-        utils.log("----------------------------------------")
+        Logger.info("----------------------------------------")
 
     def get_trends(self):
-        utils.log("Getting trends...")
+        Logger.info("Getting trends...")
         trends_scrapper = TrendsScrapper(self.driver, self.on_trends_obtained)
         trends_scrapper.start()
 
     def on_trends_obtained(self, trends):
-        utils.log("Getting tweets...")
+        Logger.info("Getting tweets...")
         tweets_scrapper = TweetsScrapper(self.driver, trends)
         tweets_scrapper.start()
-        utils.log("----------------------------------------")
-        utils.log("Saving to json...")
+        Logger.info("----------------------------------------")
+        Logger.info("Saving to json...")
         tweets_scrapper.save_to_json()
-        utils.log("----------------------------------------")
+        Logger.info("----------------------------------------")

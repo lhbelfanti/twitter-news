@@ -5,6 +5,8 @@ from exceptions import LoadingTimeout
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import TimeoutException
 
+from logger import Logger
+
 
 class Login:
     def __init__(self, driver):
@@ -39,4 +41,4 @@ class Login:
         submit_button = utils.get_element_by(By.CSS_SELECTOR, constants.SUBMIT_FORM, form)
         submit_button.click()
 
-        utils.log("Login success!")
+        Logger.info("Login success!")

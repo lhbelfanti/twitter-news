@@ -2,6 +2,7 @@ import constants
 import utils
 import time
 from exceptions import ElementNotFound, LoadingTimeout
+from logger import Logger
 from trends import TrendingTopic
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import TimeoutException
@@ -42,9 +43,9 @@ class TrendsScrapper:
             trend = TrendingTopic(title, desc_element.text, link_attr, tweets_element.text)
             trends_data.append(trend)
 
-            utils.log("Trend " + str(counter) + " of " + str(quantity) + ": " + title)
+            Logger.info("Trend " + str(counter) + " of " + str(quantity) + ": " + title)
             counter += 1
 
-        utils.log("----------------------------------------")
+        Logger.info("----------------------------------------")
         self.callback(trends_data)
 

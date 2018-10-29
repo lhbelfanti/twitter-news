@@ -1,11 +1,15 @@
 import sys
+
 import twitter_news
 import constants
-import utils
+from logger import Logger
 
+
+Logger.load()
 args = sys.argv
 if len(args) != 3:
-    utils.log("Twitter's user and password needed")
+    Logger.error("Twitter's user and password needed")
+    Logger.error("USAGE: python3 start.py <TWITTER_USER> <TWITTER_PASSWORD>")
     exit(1)
 else:
     constants.USERNAME = args[1]
