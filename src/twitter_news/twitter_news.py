@@ -1,14 +1,15 @@
-from selenium import webdriver
-import utils
 import constants
+from selenium import webdriver
 from logger import Logger
 from login import Login
 from trends import TrendsScrapper
 from tweets import TweetsScrapper
+from tweets import TweetAnalyzer
 
 
 class TwitterNews:
     def __init__(self):
+        pass
         Logger.info("Opening Twitter...")
         self.driver = webdriver.Chrome()
         self.driver.get(constants.TWITTER_URL)
@@ -39,3 +40,12 @@ class TwitterNews:
         Logger.info("Saving to json...")
         tweets_scrapper.save_to_json()
         Logger.info("----------------------------------------")
+        self.analyze_tweets()
+
+    def analyze_tweets(self):
+        Logger.info("Analyzing tweets...")
+        Logger.info("----------------------------------------")
+        analyzer = TweetAnalyzer()
+        analyzer.analyze()
+        Logger.info("----------------------------------------")
+

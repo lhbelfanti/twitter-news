@@ -1,5 +1,4 @@
 import sys
-
 import twitter_news
 import constants
 from logger import Logger
@@ -15,6 +14,6 @@ else:
     constants.USERNAME = args[1]
     constants.PASSWORD = args[2]
 
-
 twitter = twitter_news.TwitterNews()
 twitter.start()
+

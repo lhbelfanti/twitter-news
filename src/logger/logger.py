@@ -1,7 +1,5 @@
-from logging import getLogger
-
 import logging
-
+from logging import getLogger
 from pyfiglet import figlet_format
 
 

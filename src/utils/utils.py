@@ -5,6 +5,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as Ec
 
 
+# Selenium WebDriver
 def get_element_by(by, element_id, from_item):
     elements = from_item.find_elements(by, element_id)
     size = len(elements)
@@ -25,6 +26,7 @@ def wait_until_load(by, element_id, driver):
         Ec.element_to_be_clickable((by, element_id)))
 
 
+# Regex
 def get_tweets_number(msg):
     splitted = msg.split(' ')
     pattern = re.compile("(\d*[,.]\d*)[a-zA-Z]*")
@@ -35,8 +37,3 @@ def get_tweets_number(msg):
         return_data["data"] = splitted[0]
 
     return return_data
-
-
-def log(msg):
-    if constants.LOGS_ENABLED:
-        print(msg)

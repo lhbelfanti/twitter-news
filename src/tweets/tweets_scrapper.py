@@ -1,8 +1,10 @@
 import json
 import time
+import io
 import utils
 import constants
 from exceptions import ElementNotFound
+from logger import Logger
 from tweets import Tweet
 from trends import TrendFilter
 from selenium.webdriver.common.by import By
@@ -16,13 +18,17 @@ class TweetsScrapper:
         self.trending_topics = []
 
     def start(self):
+        i = 0
         for trend in self.trends_data:
-            utils.log("---------- From " + trend.title + ": ----------")
+            i = 1
+            Logger.info("---------- From " + trend.title + ": ----------")
             trend_filter = TrendFilter(self.driver, trend)
             trend_filter.start()
             self.stream_items = trend_filter.stream_items
             self.scroll_to_bottom(constants.TIMES_TO_SCROLL_TO_BOTTOM)
             self.get_tweets(trend)
+            if i == 1:
+                break
 
     def scroll_to_bottom(self, times):
         # Get scroll height
@@ -48,7 +54,7 @@ class TweetsScrapper:
             tweet_text = utils.get_element_by(By.CLASS_NAME, constants.TWEET_TEXT, tweet_data)
             text = tweet_text.text
             images = []
-            utils.log("->   " + text)
+            Logger.info(text)
             try:
                 media_container = utils.get_element_by(By.CLASS_NAME, constants.MEDIA_CONTAINER, tweet_data)
                 tweet_images = utils.get_elements_by(By.TAG_NAME, constants.IMG_TAG, media_container)
@@ -57,7 +63,7 @@ class TweetsScrapper:
                     image = image.replace("'", "")
                     images.append(image)
             except ElementNotFound:
-                utils.log("The tweet doesn't contain any image")
+                Logger.info("The tweet doesn't contain any image")
 
             user = user.replace("'", "")
             tweet = Tweet(user, text, images)
@@ -65,6 +71,8 @@ class TweetsScrapper:
         self.trending_topics.append(trend.__dict__)
 
     def save_to_json(self):
-        with open(constants.SAVE_TO, 'w') as outfile:
-            json.dump(self.trending_topics, outfile, sort_keys=True, indent=4)
-        utils.log("Data saved successfully!")
+        with io.open(constants.TRENDS_JSON, 'w', encoding='utf8') as json_file:
+            data = json.dumps(self.trending_topics, ensure_ascii=False, indent=4)
+            json_file.write(data)
+
+        Logger.info("Data saved successfully!")

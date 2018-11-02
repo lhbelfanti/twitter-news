@@ -7,7 +7,8 @@ WAIT_PAGE_LOAD = 2
 WAIT_REFRESH = 5
 TIMES_TO_SCROLL_TO_BOTTOM = 3
 SCROLL_PAUSE_TIME = 2
-SAVE_TO = "../out/trending_topics.json"
+TRENDS_JSON = "../out/trending_topics.json"
+REGEX_SCRIPT = "../regex/regex.js"
 
 # Tags
 LINK_TAG = "href"

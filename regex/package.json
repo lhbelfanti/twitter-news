@@ -1,0 +1,14 @@
+{
+  "name": "regex",
+  "version": "1.0.0",
+  "description": "",
+  "main": "regex.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Lucas Belfanti",
+  "license": "ISC",
+  "dependencies": {
+    "twitter-text": "^3.0.0"
+  }
+}
