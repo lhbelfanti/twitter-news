@@ -66,6 +66,8 @@ class TweetsScrapper:
                 Logger.info("The tweet doesn't contain any image")
 
             user = user.replace("'", "")
+            text = text.replace("\n", '').replace("\r", '').replace("\t", '')
+
             tweet = Tweet(user, text, images)
             trend.tweets.append(tweet.__dict__)
         self.trending_topics.append(trend.__dict__)
