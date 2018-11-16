@@ -1,14 +1,19 @@
-# Configs
+# --- Configs ---
 TWITTER_URL = "https://twitter.com/"
 LOADING_TIMEOUT = 10
 LOGS_ENABLED = True
 WAIT_PASSWORD = 1
 WAIT_PAGE_LOAD = 2
 WAIT_REFRESH = 5
-TIMES_TO_SCROLL_TO_BOTTOM = 3
+TIMES_TO_SCROLL_TO_BOTTOM = 10
 SCROLL_PAUSE_TIME = 2
+TRENDS_TO_GET = -1  # max value 10 | (-1) to get all the trends
 TRENDS_JSON = "../out/trending_topics.json"
+NEWS_JSON = "../out/news.json"
 REGEX_SCRIPT = "../regex/regex.js"
+SENTENCES_TO_GENERATE = 5
+
+# --- Selenium ---
 
 # Tags
 LINK_TAG = "href"
@@ -35,6 +40,7 @@ TRENDS_DESC = "trend-item-context"
 TRENDS_TWEETS = "trend-item-stats"
 TRENDS_QUERY_DATA_SOURCE = "data-query-source"
 TRENDS_PROMOTED = "promoted_trend_click"
+TREND_URL_TAG = "src=tren"
 
 # Tweets
 TWEETS_LIST = "stream-items"

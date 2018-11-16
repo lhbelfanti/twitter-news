@@ -5,11 +5,11 @@ from login import Login
 from trends import TrendsScrapper
 from tweets import TweetsScrapper
 from tweets import TweetAnalyzer
+from news import NewsMaker
 
 
 class TwitterNews:
     def __init__(self):
-        pass
         Logger.info("Opening Twitter...")
         self.driver = webdriver.Chrome()
         self.driver.get(constants.TWITTER_URL)
@@ -48,4 +48,11 @@ class TwitterNews:
         analyzer = TweetAnalyzer()
         analyzer.analyze()
         Logger.info("----------------------------------------")
+        self.create_news()
 
+    def create_news(self):
+        Logger.info("Creating news...")
+        Logger.info("----------------------------------------")
+        news_maker = NewsMaker()
+        news_maker.start()
+        Logger.info("----------------------------------------")

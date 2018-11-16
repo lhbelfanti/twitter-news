@@ -1,6 +1,5 @@
 import json
 import time
-import io
 import utils
 import constants
 from exceptions import ElementNotFound
@@ -18,16 +17,16 @@ class TweetsScrapper:
         self.trending_topics = []
 
     def start(self):
-        i = 0
+        trends_to_get = 0
         for trend in self.trends_data:
-            i = 1
+            trends_to_get += 1
             Logger.info("---------- From " + trend.title + ": ----------")
             trend_filter = TrendFilter(self.driver, trend)
             trend_filter.start()
             self.stream_items = trend_filter.stream_items
             self.scroll_to_bottom(constants.TIMES_TO_SCROLL_TO_BOTTOM)
             self.get_tweets(trend)
-            if i == 1:
+            if trends_to_get == constants.TRENDS_TO_GET:
                 break
 
     def scroll_to_bottom(self, times):
@@ -67,13 +66,14 @@ class TweetsScrapper:
 
             user = user.replace("'", "")
             text = text.replace("\n", '').replace("\r", '').replace("\t", '')
+            text = text.strip()
 
             tweet = Tweet(user, text, images)
             trend.tweets.append(tweet.__dict__)
         self.trending_topics.append(trend.__dict__)
 
     def save_to_json(self):
-        with io.open(constants.TRENDS_JSON, 'w', encoding='utf8') as json_file:
+        with open(constants.TRENDS_JSON, mode='w', encoding='utf8') as json_file:
             data = json.dumps(self.trending_topics, ensure_ascii=False, indent=4)
             json_file.write(data)
 
