@@ -9,9 +9,9 @@ from news import NewsMaker
 
 
 class TwitterNews:
-    def __init__(self):
+    def __init__(self, driver):
         Logger.info("Opening Twitter...")
-        self.driver = webdriver.Chrome()
+        self.driver = driver
         self.driver.get(constants.TWITTER_URL)
         Logger.info(self.driver.title)
         Logger.info("----------------------------------------")
