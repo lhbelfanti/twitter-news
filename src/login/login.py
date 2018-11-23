@@ -1,6 +1,7 @@
 import constants
 import utils
 import time
+from config import Configuration
 from exceptions import LoadingTimeout
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import TimeoutException
@@ -34,7 +35,7 @@ class Login:
         # Write username and password
         username_input.send_keys(constants.USERNAME)
         # Sometimes the password is not written, so we wait 1 sec and then we write it
-        time.sleep(constants.WAIT_PASSWORD)
+        time.sleep(Configuration.config["wait_password"])
         password_input.send_keys(constants.PASSWORD)
 
         # Click on submit button

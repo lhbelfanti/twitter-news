@@ -2,6 +2,7 @@ import json
 import time
 import utils
 import constants
+from config import Configuration
 from exceptions import ElementNotFound
 from logger import Logger
 from tweets import Tweet
@@ -24,9 +25,9 @@ class TweetsScrapper:
             trend_filter = TrendFilter(self.driver, trend)
             trend_filter.start()
             self.stream_items = trend_filter.stream_items
-            self.scroll_to_bottom(constants.TIMES_TO_SCROLL_TO_BOTTOM)
+            self.scroll_to_bottom(Configuration.config["times_to_scroll_to_bottom"])
             self.get_tweets(trend)
-            if trends_to_get == constants.TRENDS_TO_GET:
+            if trends_to_get == Configuration.config["trends_to_get"]:
                 break
 
     def scroll_to_bottom(self, times):
@@ -37,7 +38,7 @@ class TweetsScrapper:
             # Scroll down to bottom
             self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
             # Wait to load page
-            time.sleep(constants.SCROLL_PAUSE_TIME)
+            time.sleep(Configuration.config["scroll_pause_time"])
             # Calculate new scroll height and compare with last scroll height
             new_height = self.driver.execute_script("return document.body.scrollHeight")
             if new_height == last_height:

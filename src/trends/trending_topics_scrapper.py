@@ -1,6 +1,7 @@
 import constants
 import utils
 import time
+from config import Configuration
 from exceptions import ElementNotFound, LoadingTimeout
 from logger import Logger
 from trends import TrendingTopic
@@ -17,7 +18,7 @@ class TrendsScrapper:
     def start(self):
         try:
             utils.wait_until_load(By.CLASS_NAME, constants.TRENDS_INNER_MODULE, self.driver)
-            time.sleep(constants.WAIT_PAGE_LOAD)
+            time.sleep(Configuration.config["wait_page_load"])
             self.get_trends_data()
         except TimeoutException:
             raise LoadingTimeout()

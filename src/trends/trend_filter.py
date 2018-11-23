@@ -1,6 +1,7 @@
 import time
 import utils
 import constants
+from config import Configuration
 from exceptions import LoadingTimeout
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import TimeoutException
@@ -22,7 +23,7 @@ class TrendFilter:
         self.driver.get(self.trend.url)
         try:
             self.stream_items = utils.wait_until_load(By.CLASS_NAME, constants.TWEETS_LIST, self.driver)
-            time.sleep(constants.WAIT_PAGE_LOAD)
+            time.sleep(Configuration.config["wait_page_load"])
         except TimeoutException:
             raise LoadingTimeout()
 
