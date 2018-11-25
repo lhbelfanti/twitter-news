@@ -6,5 +6,5 @@
   "scroll_pause_time": 2,
   "trends_to_get": -1,
   "sentences_to_generate": 5,
-  "activate_nlp": 1
+  "activate_nlp": 0
 }

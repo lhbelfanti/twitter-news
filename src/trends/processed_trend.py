@@ -28,6 +28,8 @@ class ProcessedTrend:
             self.mentions.extend(tweet.mentions)
             self.cashtags.extend(tweet.cashtags)
 
+        self.clean()
+
     def clean(self):
         self.users = list(set(self.users))
         self.images = list(set(self.images))

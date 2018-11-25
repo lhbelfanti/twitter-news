@@ -19,3 +19,18 @@ def add_dot_at_the_end(text):
         return text + "."
 
     return text
+
+
+def get_cashtags(text):
+    cashtags = []
+    if not text or text.find('$') == -1:
+        return cashtags
+
+    cashtag_string = r'(?:\$[a-zA-Z]{1,6}([._][a-zA-Z]{1,2})?)'
+    cashtag_re = re.compile(cashtag_string, re.VERBOSE | re.I | re.UNICODE)
+    iterator = cashtag_re.finditer(text)
+
+    for match in iterator:
+        cashtags.append(match.group())
+
+    return cashtags

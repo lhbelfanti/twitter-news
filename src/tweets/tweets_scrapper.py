@@ -63,19 +63,12 @@ class TweetsScrapper:
                     image = image.replace("'", "")
                     images.append(image)
             except ElementNotFound:
-                Logger.info("The tweet doesn't contain any image")
+                Logger.info("")  # The tweet doesn't contain any image -> empty log because of the spam it causes
 
             user = user.replace("'", "")
             text = text.replace("\n", '').replace("\r", '').replace("\t", '')
             text = text.strip()
 
             tweet = Tweet(user, text, images)
-            trend.tweets.append(tweet.__dict__)
-        self.trending_topics.append(trend.__dict__)
-
-    def save_to_json(self):
-        with open(constants.TRENDS_JSON, mode='w', encoding='utf8') as json_file:
-            data = json.dumps(self.trending_topics, ensure_ascii=False, indent=4)
-            json_file.write(data)
-
-        Logger.info("Data saved successfully!")
+            trend.tweets.append(tweet)
+        self.trending_topics.append(trend)

@@ -13,7 +13,7 @@ class SpacyText(markovify.Text):
         if not SpacyText.dict_loaded:
             Logger.info("----------------------------------------")
             Logger.info("Loading NLP module...")
-            SpacyText.nlp = spacy.load("es")
+            SpacyText.nlp = spacy.load("es_core_news_sm")
             SpacyText.dict_loaded = True
             Logger.info("NLP module loaded")
             Logger.info("----------------------------------------")

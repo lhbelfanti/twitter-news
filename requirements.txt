@@ -3,7 +3,6 @@ chardet==3.0.4
 cymem==2.0.2
 cytoolz==0.9.0.1
 dill==0.2.8.2
-es-core-news-sm==2.0.0
 idna==2.7
 markovify==0.7.1
 msgpack==0.5.6
@@ -22,6 +21,7 @@ spacy==2.0.16
 thinc==6.12.0
 toolz==0.9.0
 tqdm==4.28.1
+twitter-text-python==1.1.0
 ujson==1.35
 Unidecode==1.0.22
 urllib3==1.23

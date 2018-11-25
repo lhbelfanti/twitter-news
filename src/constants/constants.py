@@ -1,6 +1,5 @@
 # --- App constants ---
 TWITTER_URL = "https://twitter.com/"
-TRENDS_JSON = "../out/trending_topics.json"
 NEWS_JSON = "../out/news.json"
 REGEX_SCRIPT = "../regex/regex.js"
 

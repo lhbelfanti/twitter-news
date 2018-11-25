@@ -30,6 +30,7 @@ class TwitterNews:
     def get_trends(self):
         Logger.info("Getting trends...")
         trends_scrapper = TrendsScrapper(self.driver, self.on_trends_obtained)
+        Logger.info("----------------------------------------")
         trends_scrapper.start()
 
     def on_trends_obtained(self, trends):
@@ -37,22 +38,17 @@ class TwitterNews:
         tweets_scrapper = TweetsScrapper(self.driver, trends)
         tweets_scrapper.start()
         Logger.info("----------------------------------------")
-        Logger.info("Saving to json...")
-        tweets_scrapper.save_to_json()
-        Logger.info("----------------------------------------")
-        self.analyze_tweets()
+        self.analyze_tweets(tweets_scrapper.trending_topics)
 
-    def analyze_tweets(self):
+    def analyze_tweets(self, trending_topics):
         Logger.info("Analyzing tweets...")
-        Logger.info("----------------------------------------")
-        analyzer = TweetAnalyzer()
+        analyzer = TweetAnalyzer(trending_topics)
         analyzer.analyze()
         Logger.info("----------------------------------------")
-        self.create_news()
+        self.create_news(analyzer.trending_topics)
 
-    def create_news(self):
+    def create_news(self, trending_topics):
         Logger.info("Creating news...")
-        Logger.info("----------------------------------------")
-        news_maker = NewsMaker()
+        news_maker = NewsMaker(trending_topics)
         news_maker.start()
         Logger.info("----------------------------------------")

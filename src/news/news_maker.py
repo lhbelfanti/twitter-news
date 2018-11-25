@@ -7,15 +7,15 @@ from news import News
 
 
 class NewsMaker:
-    def __init__(self):
-        trends_processor = TrendsProcessor()
+    def __init__(self, trending_topics):
+        trends_processor = TrendsProcessor(trending_topics)
         self.trends = trends_processor.processed_trends
         self.markov_chain = MarkovChain()
 
     def start(self):
-        for t in self.trends:
-            text = self.markov_chain.execute(t.texts)
-            self.save(t, text)
+        for trend in self.trends:
+            text = self.markov_chain.execute(trend.texts)
+            self.save(trend, text)
 
     def save(self, trend, text):
         news = News(trend, text)
