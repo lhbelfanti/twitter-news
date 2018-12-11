@@ -4,7 +4,7 @@
   "wait_page_load": 2,
   "times_to_scroll_to_bottom": 10,
   "scroll_pause_time": 2,
-  "trends_to_get": -1,
+  "trends_to_get": 5,
   "sentences_to_generate": 5,
-  "activate_nlp": 0
+  "activate_nlp": 1
 }
