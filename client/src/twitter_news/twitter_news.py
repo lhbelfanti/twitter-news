@@ -1,4 +1,6 @@
 import constants
+import os
+from subprocess import call
 from selenium import webdriver
 from logger import Logger
 from login import Login
@@ -52,3 +54,8 @@ class TwitterNews:
         news_maker = NewsMaker(trending_topics)
         news_maker.start()
         Logger.info("----------------------------------------")
+        self.show_page()
+
+    def show_page(self):
+        os.chdir(os.getcwd() + '/../../server')
+        call(["npm", "start"])

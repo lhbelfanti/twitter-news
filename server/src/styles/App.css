@@ -1,4 +1,21 @@
-h1 {
-    color: #27aedb;
-    text-align: center;
+@font-face {
+    font-family: 'WildRide';
+    src: url('../../public/fonts/WildRide/WildRide.eot?#iefix') format('embedded-opentype'),
+    url('../../public/fonts/WildRide/WildRide.woff') format('woff'),
+    url('../../public/fonts/WildRide/WildRide.ttf')  format('truetype'),
+    url('../../public/fonts/WildRide/WildRide.svg#WildRide') format('svg');
+    font-weight: normal;
+    font-style: normal;
 }
+
+h1 {
+    font-family: 'WildRide' !important;
+    font-size: 100px;
+    color: #55acee;
+    text-align: center;
+    margin: 30px 100px 30px 100px;
+    padding-bottom: 0.3em;
+    border-bottom: 1px solid #d7d7d7;
+}
+
+
