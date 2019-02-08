@@ -53,3 +53,4 @@ To run the server go to the _server_ folder and run
 ```javascript
 npm start
 ```
+> **Note:** Should not be necessary to manually run it. The server is called automatically after the client finishes its work.
