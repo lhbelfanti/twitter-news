@@ -28,8 +28,8 @@ For the Client:
 3. Install [pip](https://pypi.org/project/pip/) (probably it's already installed because of the instalation of Python)
 4. Install virtualenv: `pip install virtualenv`
 5. **Go into the _client_ folder of the project** and run:
-..* `virtualenv venv`
-..* `source venv/bin/activate`
+- `virtualenv venv`
+- `source venv/bin/activate`
 6. Install the necessary dependencies running: `pip install -r requirements.txt`
 
 For the Server:
