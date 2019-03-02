@@ -1,6 +1,6 @@
 import constants
-import utils
 import time
+from driver import WebDriverUtils as Utils
 from config import Configuration
 from exceptions import ElementNotFound, LoadingTimeout
 from logger import Logger
@@ -12,12 +12,13 @@ from selenium.common.exceptions import TimeoutException
 class TrendsScrapper:
     def __init__(self, driver, callback):
         self.driver = driver
+        self.utils = Utils()
         self.trends = []
         self.callback = callback
 
     def start(self):
         try:
-            utils.wait_until_load(By.CLASS_NAME, constants.TRENDS_INNER_MODULE, self.driver)
+            self.utils.wait_until_load(By.CLASS_NAME, constants.TRENDS_INNER_MODULE, self.driver)
             time.sleep(Configuration.config["wait_page_load"])
             self.get_trends_data()
         except TimeoutException:
@@ -25,17 +26,17 @@ class TrendsScrapper:
 
     def get_trends_data(self):
         # Get all of the items of the list
-        items = utils.get_elements_by(By.CLASS_NAME, constants.TREND_ITEM, self.driver)
+        items = self.utils.get_elements_by(By.CLASS_NAME, constants.TREND_ITEM, self.driver)
         quantity = len(items)
         counter = 1
         trends_data = []
         for item in items:
             # Get information of each item
             try:
-                a_element = utils.get_element_by(By.CLASS_NAME, constants.TREND_A_TAG, item)
-                title_element = utils.get_element_by(By.CLASS_NAME, constants.TRENDS_TITLE, a_element)
-                desc_element = utils.get_element_by(By.CLASS_NAME, constants.TRENDS_DESC, a_element)
-                tweets_element = utils.get_element_by(By.CLASS_NAME, constants.TRENDS_TWEETS, a_element)
+                a_element = self.utils.get_element_by(By.CLASS_NAME, constants.TREND_A_TAG, item)
+                title_element = self.utils.get_element_by(By.CLASS_NAME, constants.TRENDS_TITLE, a_element)
+                desc_element = self.utils.get_element_by(By.CLASS_NAME, constants.TRENDS_DESC, a_element)
+                tweets_element = self.utils.get_element_by(By.CLASS_NAME, constants.TRENDS_TWEETS, a_element)
                 link_attr = a_element.get_attribute(constants.LINK_TAG)
             except ElementNotFound:
                 continue

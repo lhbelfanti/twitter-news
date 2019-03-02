@@ -1,7 +1,6 @@
-import json
 import time
-import utils
 import constants
+from driver import WebDriverUtils as Utils
 from config import Configuration
 from exceptions import ElementNotFound
 from logger import Logger
@@ -13,6 +12,7 @@ from selenium.webdriver.common.by import By
 class TweetsScrapper:
     def __init__(self, driver, trends_data):
         self.driver = driver
+        self.utils = Utils()
         self.trends_data = trends_data
         self.stream_items = None
         self.trending_topics = []
@@ -46,18 +46,18 @@ class TweetsScrapper:
             last_height = new_height
 
     def get_tweets(self, trend):
-        tweets_obj = utils.get_elements_by(By.CLASS_NAME, constants.TWEET_ITEM, self.stream_items)
+        tweets_obj = self.utils.get_elements_by(By.CLASS_NAME, constants.TWEET_ITEM, self.stream_items)
         for tweet_obj in tweets_obj:
-            tweet_data = utils.get_element_by(By.CLASS_NAME, constants.TWEET, tweet_obj)
-            tweet_user = utils.get_element_by(By.CLASS_NAME, constants.TWEET_USER, tweet_data)
+            tweet_data = self.utils.get_element_by(By.CLASS_NAME, constants.TWEET, tweet_obj)
+            tweet_user = self.utils.get_element_by(By.CLASS_NAME, constants.TWEET_USER, tweet_data)
             user = tweet_user.get_attribute(constants.LINK_TAG)
-            tweet_text = utils.get_element_by(By.CLASS_NAME, constants.TWEET_TEXT, tweet_data)
+            tweet_text = self.utils.get_element_by(By.CLASS_NAME, constants.TWEET_TEXT, tweet_data)
             text = tweet_text.text
             images = []
             Logger.info(text)
             try:
-                media_container = utils.get_element_by(By.CLASS_NAME, constants.MEDIA_CONTAINER, tweet_data)
-                tweet_images = utils.get_elements_by(By.TAG_NAME, constants.IMG_TAG, media_container)
+                media_container = self.utils.get_element_by(By.CLASS_NAME, constants.MEDIA_CONTAINER, tweet_data)
+                tweet_images = self.utils.get_elements_by(By.TAG_NAME, constants.IMG_TAG, media_container)
                 for img in tweet_images:
                     image = img.get_attribute(constants.SRC_TAG)
                     image = image.replace("'", "")

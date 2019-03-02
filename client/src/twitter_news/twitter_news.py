@@ -1,7 +1,6 @@
 import constants
 import os
 from subprocess import call
-from selenium import webdriver
 from logger import Logger
 from login import Login
 from trends import TrendsScrapper

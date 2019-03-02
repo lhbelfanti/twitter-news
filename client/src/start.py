@@ -1,10 +1,9 @@
 import sys
-import twitter_news
+from twitter_news import TwitterNews
+from driver import WebDriverCreator
 import constants
 from config import Configuration
 from logger import Logger
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
 
 
 Logger.load()
@@ -19,20 +18,12 @@ else:
     constants.PASSWORD = args[2]
 
 
-# Load the Chrome webdriver
-chrome_options = Options()
-chrome_options.add_argument("--headless")
-chrome_options.add_argument("--window-size=1920x1080")
-
-# download the chrome driver from https://sites.google.com/a/chromium.org/chromedriver/downloads and put it as an
-# environment variable
-chrome_driver = "chromedriver"
-driver = webdriver.Chrome(chrome_options=chrome_options, executable_path=chrome_driver)
+driver = WebDriverCreator().driver
 
 # Load config
 Configuration.load()
 
 # Start the app
-twitter = twitter_news.TwitterNews(driver)
+twitter = TwitterNews(driver)
 twitter.start()
 
