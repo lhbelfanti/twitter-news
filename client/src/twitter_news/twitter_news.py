@@ -13,13 +13,12 @@ class TwitterNews:
     def __init__(self, driver):
         Logger.info("Opening Twitter...")
         self.driver = driver
-        self.driver.get(constants.TWITTER_URL)
-        Logger.info(self.driver.title)
+        title = self.driver.navigate_to(constants.TWITTER_URL)
+        Logger.info(title)
         Logger.info("----------------------------------------")
 
     def start(self):
         self.login()
-        self.get_trends()
         self.driver.close()
 
     def login(self):
@@ -27,6 +26,7 @@ class TwitterNews:
         login = Login(self.driver)
         login.start()
         Logger.info("----------------------------------------")
+        self.get_trends()
 
     def get_trends(self):
         Logger.info("Getting trends...")
