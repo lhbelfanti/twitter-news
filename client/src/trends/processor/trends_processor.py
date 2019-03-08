@@ -1,4 +1,4 @@
-from trends import ProcessedTrend
+from trends.processor import ProcessedTrend
 
 
 class TrendsProcessor:

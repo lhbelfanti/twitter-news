@@ -1,11 +1,10 @@
 import sys
-from twitter_news import TwitterNews
-from driver import WebDriverCreator, WebDriver
-from driver.elements import WebElement
-import constants
-from config import Configuration
-from logger import Logger
 
+import constants
+from config import DefaultConfiguration
+from driver import WebDriver
+from logger import Logger
+from twitter_news import TwitterNews
 
 Logger.load()
 args = sys.argv
@@ -18,14 +17,15 @@ else:
     constants.USERNAME = args[1]
     constants.PASSWORD = args[2]
 
-# Initializing the web driver
-driver = WebDriverCreator().driver
-web_driver = WebDriver(driver, WebElement)
 
 # Load config
-Configuration.load()
+config = DefaultConfiguration()
+# DefaultConfiguration.load()
+
+# Initializing the web driver
+web_driver = WebDriver(config)
 
 # Start the app
-twitter = TwitterNews(web_driver)
+twitter = TwitterNews(web_driver, config)
 twitter.start()
 

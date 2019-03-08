@@ -1,13 +1,16 @@
 import markovify
-from config import Configuration
+
 from markov_chain import SpacyText
 
 
 class MarkovChain:
+    def __init__(self, config):
+        self.config = config
 
     def execute(self, text):
         # Build the model.
-        if Configuration.config["activate_nlp"]:
+        activate_nlp = self.config.get("activate_nlp")
+        if activate_nlp:
             SpacyText.load_dict()
             text_model = SpacyText(text)
         else:
@@ -16,7 +19,8 @@ class MarkovChain:
         body = ""
         sentences = []
         # Create randomly-generated sentences
-        for i in range(Configuration.config["sentences_to_generate"]):
+        sentences_to_generate = self.config.get("sentences_to_generate")
+        for i in range(sentences_to_generate):
             sentence = text_model.make_sentence()
             if sentence is not None and sentence not in sentences:
                 body += sentence

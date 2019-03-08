@@ -1,30 +1,36 @@
 import constants
-from config import Configuration
 from exceptions import ElementNotFound
 from logger import Logger
-from tweets import Tweet
 from trends import TrendFilter
+from tweets import Tweet
+from tweets.scrapper import TweetsScrapper
 
 
-class TweetsScrapper:
-    def __init__(self, driver, trends_data):
-        self.driver = driver
-        self.trends_data = trends_data
+class DefaultTweetsScrapper(TweetsScrapper):
+    def __init__(self, driver, config, data_manager):
+        super().__init__(driver, config, data_manager)
+        self.trends_data = self.data_manager.get_trending_topics()
         self.stream_items = None
         self.trending_topics = []
+        Logger.info("Getting tweets...")
 
     def start(self):
-        trends_to_get = 0
+        trends_gotten = 0
+        trends_to_get = self.config.get("trends_to_get")
+
         for trend in self.trends_data:
-            trends_to_get += 1
+            trends_gotten += 1
             Logger.info("---------- From " + trend.title + ": ----------")
-            trend_filter = TrendFilter(self.driver, trend)
+            trend_filter = TrendFilter(self.driver, self.config, trend)
             trend_filter.start()
             self.stream_items = trend_filter.stream_items
-            self.driver.scroll_to_bottom(Configuration.config["times_to_scroll_to_bottom"])
+            self.driver.scroll_to_bottom(self.config.get("times_to_scroll_to_bottom"))
             self.get_tweets(trend)
-            if trends_to_get == Configuration.config["trends_to_get"]:
+            if trends_gotten == trends_to_get:
                 break
+
+        self.data_manager.set_trending_topics(self.trending_topics)
+        Logger.info("----------------------------------------")
 
     def get_tweets(self, trend):
         tweets_obj = self.driver.get_elements(constants.TWEET_ITEM, self.stream_items)

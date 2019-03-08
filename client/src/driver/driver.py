@@ -1,7 +1,6 @@
 class Driver(object):
-    def __init__(self, driver, element):
-        self.driver = driver
-        self.element = element
+    def __init__(self, config):
+        self.config = config
 
     def get_element(self, element_id, from_item, by):
         raise NotImplementedError('must define get_element to use this base class')

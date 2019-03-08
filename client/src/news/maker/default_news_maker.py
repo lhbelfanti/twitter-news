@@ -1,18 +1,26 @@
 import json
+
 import constants
 from logger import Logger
-from trends import TrendsProcessor
 from markov_chain import MarkovChain
 from news import News
+from news.maker import NewsMaker
+from trends.processor import TrendsProcessor
 
 
-class NewsMaker:
-    def __init__(self, trending_topics):
-        trends_processor = TrendsProcessor(trending_topics)
+class DefaultNewsMaker(NewsMaker):
+    def __init__(self, config, data_manager):
+        super().__init__(config, data_manager)
+        trends_processor = TrendsProcessor(self.data_manager.get_trending_topics())
         self.trends = trends_processor.processed_trends
-        self.markov_chain = MarkovChain()
+        self.markov_chain = MarkovChain(self.config)
+        Logger.info("Creating news...")
 
     def start(self):
+        self.create_news()
+        Logger.info("----------------------------------------")
+
+    def create_news(self):
         for trend in self.trends:
             text = self.markov_chain.execute(trend.texts)
             self.save(trend, text)

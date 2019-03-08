@@ -1,6 +1,6 @@
 from selenium.webdriver.common.by import By
 
-from .element import Element
+from driver.elements import Element
 
 
 class WebElement(Element):
