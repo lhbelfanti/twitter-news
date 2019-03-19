@@ -1,0 +1,10 @@
+{
+  "Configuration": "config.DefaultConfiguration",
+  "DataManager": "data.DefaultDataManager",
+  "Driver": "driver.WebDriver",
+  "Login": "login.DefaultLogin",
+  "TrendsScrapper": "trends.scrapper.DefaultTrendsScrapper",
+  "TweetsScrapper": "tweets.scrapper.DefaultTweetsScrapper",
+  "TweetAnalyzer": "tweets.analyzer.DefaultTweetAnalyzer",
+  "NewsMaker": "news.maker.DefaultNewsMaker"
+}

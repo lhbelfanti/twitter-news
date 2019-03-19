@@ -1,10 +1,10 @@
 import sys
 
+import json
 import constants
-from config import DefaultConfiguration
-from driver import WebDriver
 from logger import Logger
 from twitter_news import TwitterNews
+from di import Injector
 
 Logger.load()
 args = sys.argv
@@ -17,15 +17,11 @@ else:
     constants.USERNAME = args[1]
     constants.PASSWORD = args[2]
 
-
-# Load config
-config = DefaultConfiguration()
-# DefaultConfiguration.load()
-
-# Initializing the web driver
-web_driver = WebDriver(config)
+# Initialize the Injector
+with open('./di/di.json') as config_file:
+    config = json.load(config_file)
+inj = Injector(config)
 
 # Start the app
-twitter = TwitterNews(web_driver, config)
+twitter = TwitterNews(inj)
 twitter.start()
-

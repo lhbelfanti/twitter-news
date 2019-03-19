@@ -1,6 +1,15 @@
-class TweetAnalyzer(object):
-    def __init__(self, data_manager):
-        self.data_manager = data_manager
+from di import Injectable
+
+
+class TweetAnalyzer(Injectable):
+    def __init__(self):
+        super().__init__()
 
     def analyze(self):
         raise NotImplementedError('must define analyze to use this base class')
+
+    def define_dependencies(self):
+        raise NotImplementedError('must define define_dependencies to use this base class')
+
+    def construct(self, dependencies):
+        raise NotImplementedError('must define construct to use this base class')

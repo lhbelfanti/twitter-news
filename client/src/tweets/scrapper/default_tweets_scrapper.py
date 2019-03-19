@@ -1,4 +1,7 @@
 import constants
+from config import Configuration
+from data import DataManager
+from driver import Driver
 from exceptions import ElementNotFound
 from logger import Logger
 from trends import TrendFilter
@@ -7,14 +10,28 @@ from tweets.scrapper import TweetsScrapper
 
 
 class DefaultTweetsScrapper(TweetsScrapper):
-    def __init__(self, driver, config, data_manager):
-        super().__init__(driver, config, data_manager)
-        self.trends_data = self.data_manager.get_trending_topics()
+    def __init__(self):
+        super().__init__()
+        self.driver = None
+        self.config = None
+        self.data_manager = None
         self.stream_items = None
+        self.trends_data = None
         self.trending_topics = []
-        Logger.info("Getting tweets...")
+
+    def define_dependencies(self):
+        self.add_dependency(Driver)
+        self.add_dependency(Configuration)
+        self.add_dependency(DataManager)
+
+    def construct(self, dependencies):
+        self.driver = self.get_dependency(Driver, dependencies)
+        self.config = self.get_dependency(Configuration, dependencies)
+        self.data_manager = self.get_dependency(DataManager, dependencies)
+        self.trends_data = self.data_manager.get_trending_topics()
 
     def start(self):
+        Logger.info("Getting tweets...")
         trends_gotten = 0
         trends_to_get = self.config.get("trends_to_get")
 

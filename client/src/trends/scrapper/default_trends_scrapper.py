@@ -3,6 +3,9 @@ import time
 from selenium.common.exceptions import TimeoutException
 
 import constants
+from config import Configuration
+from data import DataManager
+from driver import Driver
 from exceptions import ElementNotFound, LoadingTimeout
 from logger import Logger
 from trends import TrendingTopic
@@ -10,12 +13,25 @@ from trends.scrapper import TrendsScrapper
 
 
 class DefaultTrendsScrapper(TrendsScrapper):
-    def __init__(self, driver, config, data_manager):
-        super().__init__(driver, config, data_manager)
+    def __init__(self):
+        super().__init__()
         self.trends = []
-        Logger.info("Getting trends...")
+        self.driver = None
+        self.config = None
+        self.data_manager = None
+
+    def define_dependencies(self):
+        self.add_dependency(Driver)
+        self.add_dependency(Configuration)
+        self.add_dependency(DataManager)
+
+    def construct(self, dependencies):
+        self.driver = self.get_dependency(Driver, dependencies)
+        self.config = self.get_dependency(Configuration, dependencies)
+        self.data_manager = self.get_dependency(DataManager, dependencies)
 
     def start(self):
+        Logger.info("Getting trends...")
         try:
             self.driver.wait_until_load(constants.TRENDS_INNER_MODULE)
             time.sleep(self.config.get("wait_page_load"))

@@ -7,7 +7,13 @@ from config import Configuration
 
 class DefaultConfiguration(Configuration):
     def __init__(self):
+        super().__init__()
         self._config = {}
+
+    def define_dependencies(self):
+        pass
+
+    def construct(self, dependencies):
         self.load()
 
     def load(self):

@@ -1,3 +1,4 @@
+from data import DataManager
 from logger import Logger
 from utils import regex
 from ttp import ttp
@@ -6,14 +7,22 @@ from tweets.analyzer import TweetAnalyzer
 
 
 class DefaultTweetAnalyzer(TweetAnalyzer):
+    def __init__(self):
+        super().__init__()
+        self.data_manager = None
+        self.parser = None
+        self.trending_topics = None
 
-    def __init__(self, data_manager):
-        super().__init__(data_manager)
+    def define_dependencies(self):
+        self.add_dependency(DataManager)
+
+    def construct(self, dependencies):
+        self.data_manager = self.get_dependency(DataManager, dependencies)
         self.parser = ttp.Parser()
         self.trending_topics = self.data_manager.get_trending_topics()
-        Logger.info("Analyzing tweets...")
 
     def analyze(self):
+        Logger.info("Analyzing tweets...")
         for trend in self.trending_topics:
             for tweet in trend.tweets:
                 result = self.parser.parse(tweet.text)

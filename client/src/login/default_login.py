@@ -4,18 +4,29 @@ from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
 
 import constants
-from config import DefaultConfiguration
+from config import Configuration
+from driver import Driver
 from exceptions import LoadingTimeout
 from logger import Logger
 from login import Login
 
 
 class DefaultLogin(Login):
-    def __init__(self, driver, config):
-        super().__init__(driver, config)
-        Logger.info("Logging in...")
+    def __init__(self):
+        super().__init__()
+        self.driver = None
+        self.config = None
+
+    def define_dependencies(self):
+        self.add_dependency(Driver)
+        self.add_dependency(Configuration)
+
+    def construct(self, dependencies):
+        self.driver = self.get_dependency(Driver, dependencies)
+        self.config = self.get_dependency(Configuration, dependencies)
 
     def start(self):
+        Logger.info("Logging in...")
         try:
             self.driver.wait_until_load(constants.PASSWORD_ELEMENT)
             self.login_user()

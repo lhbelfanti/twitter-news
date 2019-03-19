@@ -2,24 +2,27 @@ import os
 from subprocess import call
 
 import constants
-from data import DefaultDataManager
+from config import Configuration
+from data import DataManager
+from driver import Driver
 from logger import Logger
-from login import DefaultLogin
-from news.maker import DefaultNewsMaker
-from trends.scrapper import DefaultTrendsScrapper
-from tweets.analyzer import DefaultTweetAnalyzer
-from tweets.scrapper import DefaultTweetsScrapper
+from login import Login
+from news.maker import NewsMaker
+from trends.scrapper import TrendsScrapper
+from tweets.analyzer import TweetAnalyzer
+from tweets.scrapper import TweetsScrapper
 
 
 class TwitterNews:
-    def __init__(self, driver, config):
+    def __init__(self, injector):
+        self.inj = injector
+        self.driver = self.inj.get_service(Driver)
         Logger.info("Opening Twitter...")
-        self.driver = driver
         title = self.driver.navigate_to(constants.TWITTER_URL)
         Logger.info(title)
         Logger.info("----------------------------------------")
-        self.data_manager = DefaultDataManager()
-        self.config = config
+        self.data_manager = self.inj.get_service(DataManager)
+        self.config = self.inj.get_service(Configuration)
 
     def start(self):
         self.login()
@@ -31,23 +34,23 @@ class TwitterNews:
         self.driver.close()
 
     def login(self):
-        login = DefaultLogin(self.driver, self.config)
+        login = self.inj.get_service(Login)
         login.start()
 
     def get_trends(self):
-        trends_scrapper = DefaultTrendsScrapper(self.driver, self.config, self.data_manager)
+        trends_scrapper = self.inj.get_service(TrendsScrapper)
         trends_scrapper.start()
 
     def get_tweets_from_trends(self):
-        tweets_scrapper = DefaultTweetsScrapper(self.driver, self.config, self.data_manager)
+        tweets_scrapper = self.inj.get_service(TweetsScrapper)
         tweets_scrapper.start()
 
     def analyze_tweets(self):
-        analyzer = DefaultTweetAnalyzer(self.data_manager)
+        analyzer = self.inj.get_service(TweetAnalyzer)
         analyzer.analyze()
 
     def create_news(self):
-        news_maker = DefaultNewsMaker(self.config, self.data_manager)
+        news_maker = self.inj.get_service(NewsMaker)
         news_maker.start()
 
     def show_page(self):

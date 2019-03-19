@@ -1,6 +1,8 @@
 import json
 
 import constants
+from config import Configuration
+from data import DataManager
 from logger import Logger
 from markov_chain import MarkovChain
 from news import News
@@ -9,14 +11,26 @@ from trends.processor import TrendsProcessor
 
 
 class DefaultNewsMaker(NewsMaker):
-    def __init__(self, config, data_manager):
-        super().__init__(config, data_manager)
-        trends_processor = TrendsProcessor(self.data_manager.get_trending_topics())
-        self.trends = trends_processor.processed_trends
+    def __init__(self):
+        super().__init__()
+        self.config = None
+        self.data_manager = None
+        self.trends = None
+        self.markov_chain = None
+
+    def define_dependencies(self):
+        self.add_dependency(Configuration)
+        self.add_dependency(DataManager)
+
+    def construct(self, dependencies):
+        self.config = self.get_dependency(Configuration, dependencies)
+        self.data_manager = self.get_dependency(DataManager, dependencies)
         self.markov_chain = MarkovChain(self.config)
-        Logger.info("Creating news...")
 
     def start(self):
+        trends_processor = TrendsProcessor(self.data_manager.get_trending_topics())
+        self.trends = trends_processor.processed_trends
+        Logger.info("Creating news...")
         self.create_news()
         Logger.info("----------------------------------------")
 

@@ -10,10 +10,21 @@ from driver import Driver
 from driver.elements import WebElement
 from exceptions import ElementNotFound
 
+from config import Configuration
+
 
 class WebDriver(Driver):
-    def __init__(self, config):
-        super().__init__(config)
+    def __init__(self):
+        super().__init__()
+        self.config = None
+        self.driver = None
+        self.element = None
+
+    def define_dependencies(self):
+        self.add_dependency(Configuration)
+
+    def construct(self, dependencies):
+        self.config = self.get_dependency(Configuration, dependencies)
         self.driver = self.create_driver()
         self.element = WebElement
 
