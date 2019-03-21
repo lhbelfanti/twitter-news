@@ -8,35 +8,32 @@ class Injector(object):
     def __init__(self, di_config):
         self._di = di_config
         self._services = {}
-        self.load()
+        self._load()
 
-    def load(self):
+    def _load(self):
         for service in self._di:
             implementation = self._di[service]
             if not hasattr(self._services, service):
                 self._services[service] = {}
-            self._services[service][implementation] = self.create_instance(implementation)
+            self._services[service][implementation] = self._create_instance(implementation)
 
-    def create_instance(self, service):
+    def _create_instance(self, service):
         module_name, class_name = service.rsplit(".", 1)
         svc = getattr(importlib.import_module(module_name), class_name)
         return svc()
 
-    def get_service(self, service_class):
-        return self.internal_get_service(service_class.__name__)
-
-    def internal_get_service(self, service):
+    def _internal_get_service(self, service):
         svc = self._services[service][self._di[service]]
 
         if not svc:
             raise ServiceNotFound(svc)
 
         if not svc.is_constructed():
-            self.construct(service, svc)
+            self._construct(service, svc)
 
         return svc
 
-    def construct(self, service, svc):
+    def _construct(self, service, svc):
         dependencies_map = {}
 
         dependencies = svc.get_dependencies()
@@ -54,7 +51,10 @@ class Injector(object):
                         if dep != dependency_deps_end:
                             raise CircularDependency(service.__name__)
 
-            dependencies_map[dep_name] = self.internal_get_service(dep_name)
+            dependencies_map[dep_name] = self._internal_get_service(dep_name)
 
         svc.construct(dependencies_map)
         svc.set_constructed()
+
+    def get_service(self, service_class):
+        return self._internal_get_service(service_class.__name__)

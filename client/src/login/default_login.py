@@ -14,28 +14,28 @@ from login import Login
 class DefaultLogin(Login):
     def __init__(self):
         super().__init__()
-        self.driver = None
-        self.config = None
+        self._driver = None
+        self._config = None
 
-    def define_dependencies(self):
-        self.add_dependency(Driver)
-        self.add_dependency(Configuration)
+    def _define_dependencies(self):
+        self._add_dependency(Driver)
+        self._add_dependency(Configuration)
 
     def construct(self, dependencies):
-        self.driver = self.get_dependency(Driver, dependencies)
-        self.config = self.get_dependency(Configuration, dependencies)
+        self._driver = self._get_dependency(Driver, dependencies)
+        self._config = self._get_dependency(Configuration, dependencies)
 
-    def start(self):
+    def login_user(self):
         Logger.info("Logging in...")
         try:
-            self.driver.wait_until_load(constants.PASSWORD_ELEMENT)
-            self.login_user()
+            self._driver.wait_until_load(constants.PASSWORD_ELEMENT)
+            self._login()
         except TimeoutException:
             raise LoadingTimeout()
 
-    def login_user(self):
+    def _login(self):
         # Getting form element
-        form = self.driver.get_element(constants.FORM_ELEMENT)
+        form = self._driver.get_element(constants.FORM_ELEMENT)
 
         # Getting username and password input container
         username = form.get_element(constants.USERNAME_ELEMENT)
@@ -49,7 +49,7 @@ class DefaultLogin(Login):
         username_input.write(constants.USERNAME)
 
         # Sometimes the password is not written, so we wait 1 sec and then we write it
-        time.sleep(self.config.get("wait_password"))
+        time.sleep(self._config.get("wait_password"))
 
         # Write password
         password_input.write(constants.PASSWORD)

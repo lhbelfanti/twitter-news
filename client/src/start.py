@@ -18,7 +18,7 @@ else:
     constants.PASSWORD = args[2]
 
 # Initialize the Injector
-with open('./di/di.json') as config_file:
+with open(constants.DI_JSON) as config_file:
     config = json.load(config_file)
 inj = Injector(config)
 

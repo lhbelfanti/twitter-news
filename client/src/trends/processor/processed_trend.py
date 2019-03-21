@@ -28,9 +28,9 @@ class ProcessedTrend:
             self.mentions.extend(tweet.mentions)
             self.cashtags.extend(tweet.cashtags)
 
-        self.clean()
+        self._clean()
 
-    def clean(self):
+    def _clean(self):
         self.users = list(set(self.users))
         self.images = list(set(self.images))
         self.links = list(set(self.links))

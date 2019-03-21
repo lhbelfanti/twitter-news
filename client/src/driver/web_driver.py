@@ -16,19 +16,19 @@ from config import Configuration
 class WebDriver(Driver):
     def __init__(self):
         super().__init__()
-        self.config = None
-        self.driver = None
-        self.element = None
+        self._config = None
+        self._driver = None
+        self._element = None
 
-    def define_dependencies(self):
-        self.add_dependency(Configuration)
+    def _define_dependencies(self):
+        self._add_dependency(Configuration)
 
     def construct(self, dependencies):
-        self.config = self.get_dependency(Configuration, dependencies)
-        self.driver = self.create_driver()
-        self.element = WebElement
+        self._config = self._get_dependency(Configuration, dependencies)
+        self._driver = self._create_driver()
+        self._element = WebElement
 
-    def create_driver(self):
+    def _create_driver(self):
         # Load the Chrome webdriver
         chrome_options = Options()
         chrome_options.add_argument("--headless")
@@ -39,54 +39,54 @@ class WebDriver(Driver):
         return webdriver.Chrome(options=chrome_options, executable_path="chromedriver")
 
     def get_element(self, element_id, from_item=None, by=By.CLASS_NAME):
-        from_item = self.driver if from_item is None else from_item
+        from_item = self._driver if from_item is None else from_item
         elements = from_item.find_elements(by, element_id)
         size = len(elements)
 
         if size > 0:
             e = elements[0]
-            return self.create_element(e, e.tag_name)
+            return self._create_element(e, e.tag_name)
         else:
             raise ElementNotFound()
 
     def get_elements(self, element_id, from_item=None, by=By.CLASS_NAME):
-        from_item = self.driver if from_item is None else from_item
+        from_item = self._driver if from_item is None else from_item
         items = from_item.find_elements(by, element_id)
-        elements = self.create_elements(items)
+        elements = self._create_elements(items)
         return elements
 
     def wait_until_load(self, element_id, by=By.CLASS_NAME):
-        return WebDriverWait(self.driver, self.config.get("loading_timeout")).until(
+        return WebDriverWait(self._driver, self._config.get("loading_timeout")).until(
             Ec.element_to_be_clickable((by, element_id)))
 
     def navigate_to(self, url):
-        self.driver.get(url)
-        return self.driver.title
+        self._driver.get(url)
+        return self._driver.title
 
     def scroll_to_bottom(self, times):
         # Get scroll height
-        last_height = self.driver.execute_script("return document.body.scrollHeight")
+        last_height = self._driver.execute_script("return document.body.scrollHeight")
 
         for i in range(0, times):
             # Scroll down to bottom
-            self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            self._driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
             # Wait to load page
-            time.sleep(self.config.get("scroll_pause_time"))
+            time.sleep(self._config.get("scroll_pause_time"))
             # Calculate new scroll height and compare with last scroll height
-            new_height = self.driver.execute_script("return document.body.scrollHeight")
+            new_height = self._driver.execute_script("return document.body.scrollHeight")
             if new_height == last_height:
                 break
             last_height = new_height
 
-    def create_element(self, e, tag):
-        return self.element(e, self, tag)
+    def _create_element(self, e, tag):
+        return self._element(e, self, tag)
 
-    def create_elements(self, items):
+    def _create_elements(self, items):
         elements = []
         for e in items:
-            elements.append(self.create_element(e, e.tag_name))
+            elements.append(self._create_element(e, e.tag_name))
 
         return elements
 
     def close(self):
-        self.driver.close()
+        self._driver.close()

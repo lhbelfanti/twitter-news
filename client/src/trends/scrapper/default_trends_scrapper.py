@@ -15,33 +15,33 @@ from trends.scrapper import TrendsScrapper
 class DefaultTrendsScrapper(TrendsScrapper):
     def __init__(self):
         super().__init__()
-        self.trends = []
-        self.driver = None
-        self.config = None
-        self.data_manager = None
+        self._trends = []
+        self._driver = None
+        self._config = None
+        self._data_manager = None
 
-    def define_dependencies(self):
-        self.add_dependency(Driver)
-        self.add_dependency(Configuration)
-        self.add_dependency(DataManager)
+    def _define_dependencies(self):
+        self._add_dependency(Driver)
+        self._add_dependency(Configuration)
+        self._add_dependency(DataManager)
 
     def construct(self, dependencies):
-        self.driver = self.get_dependency(Driver, dependencies)
-        self.config = self.get_dependency(Configuration, dependencies)
-        self.data_manager = self.get_dependency(DataManager, dependencies)
+        self._driver = self._get_dependency(Driver, dependencies)
+        self._config = self._get_dependency(Configuration, dependencies)
+        self._data_manager = self._get_dependency(DataManager, dependencies)
 
-    def start(self):
+    def get_trends(self):
         Logger.info("Getting trends...")
         try:
-            self.driver.wait_until_load(constants.TRENDS_INNER_MODULE)
-            time.sleep(self.config.get("wait_page_load"))
-            self.get_trends_data()
+            self._driver.wait_until_load(constants.TRENDS_INNER_MODULE)
+            time.sleep(self._config.get("wait_page_load"))
+            self._get_trends_data()
         except TimeoutException:
             raise LoadingTimeout()
 
-    def get_trends_data(self):
+    def _get_trends_data(self):
         # Get all of the items of the list
-        items = self.driver.get_elements(constants.TREND_ITEM)
+        items = self._driver.get_elements(constants.TREND_ITEM)
         quantity = len(items)
         counter = 1
         trends_data = []
@@ -65,6 +65,6 @@ class DefaultTrendsScrapper(TrendsScrapper):
             counter += 1
 
         Logger.info("----------------------------------------")
-        self.data_manager.set_trending_topics(trends_data)
+        self._data_manager.set_trending_topics(trends_data)
 
         Logger.info("----------------------------------------")

@@ -13,33 +13,33 @@ from trends.processor import TrendsProcessor
 class DefaultNewsMaker(NewsMaker):
     def __init__(self):
         super().__init__()
-        self.config = None
-        self.data_manager = None
-        self.trends = None
-        self.markov_chain = None
+        self._config = None
+        self._data_manager = None
+        self._trends = None
+        self._markov_chain = None
 
-    def define_dependencies(self):
-        self.add_dependency(Configuration)
-        self.add_dependency(DataManager)
+    def _define_dependencies(self):
+        self._add_dependency(Configuration)
+        self._add_dependency(DataManager)
 
     def construct(self, dependencies):
-        self.config = self.get_dependency(Configuration, dependencies)
-        self.data_manager = self.get_dependency(DataManager, dependencies)
-        self.markov_chain = MarkovChain(self.config)
-
-    def start(self):
-        trends_processor = TrendsProcessor(self.data_manager.get_trending_topics())
-        self.trends = trends_processor.processed_trends
-        Logger.info("Creating news...")
-        self.create_news()
-        Logger.info("----------------------------------------")
+        self._config = self._get_dependency(Configuration, dependencies)
+        self._data_manager = self._get_dependency(DataManager, dependencies)
+        self._markov_chain = MarkovChain(self._config)
 
     def create_news(self):
-        for trend in self.trends:
-            text = self.markov_chain.execute(trend.texts)
-            self.save(trend, text)
+        trends_processor = TrendsProcessor(self._data_manager.get_trending_topics())
+        self._trends = trends_processor.processed_trends
+        Logger.info("Creating news...")
+        self._generate_news()
+        Logger.info("----------------------------------------")
 
-    def save(self, trend, text):
+    def _generate_news(self):
+        for trend in self._trends:
+            text = self._markov_chain.execute(trend.texts)
+            self._save(trend, text)
+
+    def _save(self, trend, text):
         news = News(trend, text)
 
         news_data = None

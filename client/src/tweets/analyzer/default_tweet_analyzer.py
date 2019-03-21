@@ -9,40 +9,40 @@ from tweets.analyzer import TweetAnalyzer
 class DefaultTweetAnalyzer(TweetAnalyzer):
     def __init__(self):
         super().__init__()
-        self.data_manager = None
-        self.parser = None
-        self.trending_topics = None
+        self._data_manager = None
+        self._parser = None
+        self._trending_topics = None
 
-    def define_dependencies(self):
-        self.add_dependency(DataManager)
+    def _define_dependencies(self):
+        self._add_dependency(DataManager)
 
     def construct(self, dependencies):
-        self.data_manager = self.get_dependency(DataManager, dependencies)
-        self.parser = ttp.Parser()
-        self.trending_topics = self.data_manager.get_trending_topics()
+        self._data_manager = self._get_dependency(DataManager, dependencies)
+        self._parser = ttp.Parser()
+        self._trending_topics = self._data_manager.get_trending_topics()
 
     def analyze(self):
         Logger.info("Analyzing tweets...")
-        for trend in self.trending_topics:
+        for trend in self._trending_topics:
             for tweet in trend.tweets:
-                result = self.parser.parse(tweet.text)
+                result = self._parser.parse(tweet.text)
                 tweet.links = result.urls
                 tweet.hashtags = result.tags
                 tweet.mentions = result.users
                 tweet.cashtags = regex.get_cashtags(tweet.text)
-                tweet.text = self.remove(tweet.text, tweet.links, tweet.hashtags, tweet.mentions, tweet.cashtags)
+                tweet.text = self._remove(tweet.text, tweet.links, tweet.hashtags, tweet.mentions, tweet.cashtags)
 
-        self.data_manager.set_trending_topics(self.trending_topics)
+        self._data_manager.set_trending_topics(self._trending_topics)
         Logger.info("----------------------------------------")
 
-    def remove(self, text, links, hashtags, mentions, cashtags):
-        text = self.extract(text, links, '', True)
-        text = self.extract(text, hashtags, '#')
-        text = self.extract(text, mentions, '@')
-        text = self.extract(text, cashtags, '$')
+    def _remove(self, text, links, hashtags, mentions, cashtags):
+        text = self._extract(text, links, '', True)
+        text = self._extract(text, hashtags, '#')
+        text = self._extract(text, mentions, '@')
+        text = self._extract(text, cashtags, '$')
         return text
 
-    def extract(self, text, array, symbol, link=False):
+    def _extract(self, text, array, symbol, link=False):
         for item in array:
             text = text.replace(symbol + item, '' if link else item)
         return text
