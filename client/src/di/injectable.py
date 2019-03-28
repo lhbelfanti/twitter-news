@@ -6,7 +6,7 @@ class Injectable(object):
         self._define_dependencies()
 
     def _define_dependencies(self):
-        raise NotImplementedError("must define define_dependencies to use this base class")
+        raise NotImplementedError("must define _define_dependencies to use this base class")
 
     def construct(self, dependencies):
         raise NotImplementedError("must define construct to use this base class")

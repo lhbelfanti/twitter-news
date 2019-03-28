@@ -21,6 +21,7 @@ else:
 with open(constants.DI_JSON) as config_file:
     config = json.load(config_file)
 inj = Injector(config)
+inj.load()
 
 # Start the app
 twitter = TwitterNews(inj)
