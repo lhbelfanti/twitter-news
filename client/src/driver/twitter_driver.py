@@ -13,22 +13,21 @@ from exceptions import ElementNotFound
 from config import Configuration
 
 
-class WebDriver(Driver):
+class TwitterDriver(Driver):
     def __init__(self):
         super().__init__()
         self._config = None
         self._driver = None
-        self._element = None
+        self._element = WebElement
 
     def _define_dependencies(self):
         self._add_dependency(Configuration)
 
     def construct(self, dependencies):
         self._config = self._get_dependency(Configuration, dependencies)
-        self._driver = self._create_driver()
-        self._element = WebElement
+        self.create_driver()
 
-    def _create_driver(self):
+    def create_driver(self):
         # Load the Chrome webdriver
         chrome_options = Options()
         chrome_options.add_argument("--headless")
@@ -36,7 +35,7 @@ class WebDriver(Driver):
 
         # download the chrome driver from https://sites.google.com/a/chromium.org/chromedriver/downloads
         # and put it as an environment variable
-        return webdriver.Chrome(options=chrome_options, executable_path="chromedriver")
+        self._driver = webdriver.Chrome(options=chrome_options, executable_path="chromedriver")
 
     def get_element(self, element_id, from_item=None, by=By.CLASS_NAME):
         from_item = self._driver if from_item is None else from_item
@@ -90,3 +89,16 @@ class WebDriver(Driver):
 
     def close(self):
         self._driver.close()
+
+    # Getters and setters
+    @property
+    def driver(self):
+        return self._driver
+
+    @property
+    def config(self, value):
+        self._config = value
+
+    @config.setter
+    def config(self, value):
+        self._config = value

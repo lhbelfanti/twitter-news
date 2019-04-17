@@ -5,6 +5,9 @@ class Driver(Injectable):
     def __init__(self):
         super().__init__()
 
+    def create_driver(self):
+        raise NotImplementedError("must define create_driver to use this base class")
+
     def get_element(self, element_id, from_item, by):
         raise NotImplementedError("must define get_element to use this base class")
 

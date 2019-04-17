@@ -1,7 +1,7 @@
 {
   "Configuration": "src.config.DefaultConfiguration",
   "DataManager": "src.data.DefaultDataManager",
-  "Driver": "src.driver.WebDriver",
+  "Driver": "src.driver.TwitterDriver",
   "Login": "src.login.DefaultLogin",
   "TrendsScrapper": "src.trends.scrapper.DefaultTrendsScrapper",
   "TweetsScrapper": "src.tweets.scrapper.DefaultTweetsScrapper",

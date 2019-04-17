@@ -7,7 +7,6 @@ from exceptions import ServiceNotFound, CircularDependency, NonExistentService, 
 
 
 class InjectorTest(unittest.TestCase):
-
     def setUp(self):
         self._di_config = {
             "Service": "client.tests.di.services.Service0",
@@ -73,4 +72,6 @@ class InjectorTest(unittest.TestCase):
             self._create_injector()
         print(cm.exception.args[0])
 
-
+    def tearDown(self):
+        self._di_config = None
+        self._injector = None

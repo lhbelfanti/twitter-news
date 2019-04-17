@@ -15,9 +15,13 @@ class DefaultConfiguration(Configuration):
         pass
 
     def construct(self, dependencies):
-        self._load()
+        self.load()
 
-    def _load(self):
+    def load(self, data=None):
+        if data is not None:
+            self._config = data
+            return
+
         path = os.path.abspath(os.path.join(os.path.dirname(__file__), constants.CONFIG_PATH))
         with open(path) as config_file:
             Logger.info("Loading configuration file.")
