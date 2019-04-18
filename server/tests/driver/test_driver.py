@@ -52,12 +52,9 @@ class DriverTest(unittest.TestCase):
         # Basic case
         element = self._driver.get_element("options-bar")
         self._assert_element_obtained(element)
-        # Get element from another element than the driver
-        element2 = element.get_element("search-the-site")
-        self._assert_element_obtained(element2)
         # Get element by css selector
-        element3 = self._driver.get_element("img[class='python-logo']", None, By.CSS_SELECTOR)
-        self._assert_element_obtained(element3)
+        element2 = self._driver.get_element("img[class='python-logo']", None, By.CSS_SELECTOR)
+        self._assert_element_obtained(element2)
 
     def test_get_element_should_throw_exception(self):
         self.setup_test()
