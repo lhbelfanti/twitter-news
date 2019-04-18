@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import News from './News';
-import NewsData from '../../../client/out/news';
+import NewsData from '../../../server/out/news';
 
 
 class NewsContainer extends Component {

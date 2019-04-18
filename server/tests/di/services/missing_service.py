@@ -1,4 +1,4 @@
-from client.tests.di.services.service import Service
+from server.tests.di.services.service import Service
 
 
 class MissingService(Service):

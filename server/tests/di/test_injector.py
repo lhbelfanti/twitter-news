@@ -1,7 +1,7 @@
 import unittest
 
-from client.tests.di.services import Service, Service0, MissingService
-from client.tests.di.services.circular_dependency import Service1, Service3, Service7
+from server.tests.di.services import Service, Service0, MissingService
+from server.tests.di.services.circular_dependency import Service1, Service3, Service7
 from di import Injector
 from exceptions import ServiceNotFound, CircularDependency, NonExistentService, InjectableNotImplemented
 
