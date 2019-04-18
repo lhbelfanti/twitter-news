@@ -4,7 +4,7 @@ NEWS_JSON = "./out/news.json"
 REGEX_SCRIPT = "../regex/regex.js"
 CONFIG_PATH = "./config.json"
 DI_JSON = "./src/di/di.json"
-SERVER_PATH = "/../server"
+CLIENT_PATH = "/../client"g
 
 # --- Selenium ---
 

@@ -57,5 +57,5 @@ class TwitterNews:
         news_maker.create_news()
 
     def _show_page(self):
-        os.chdir(os.getcwd() + constants.SERVER_PATH)
+        os.chdir(os.getcwd() + constants.CLIENT_PATH)
         call(["npm", "start"])
