@@ -1,5 +1,4 @@
 import unittest
-from unittest.mock import MagicMock
 
 from selenium.webdriver.common.by import By
 
@@ -8,11 +7,9 @@ from driver.elements import WebElement as OwnWebElement
 
 
 class ElementTest(unittest.TestCase):
+
     def setUp(self):
         self._driver = TwitterDriver()
-        attrs = {'get.return_value': 10}
-        config_mock = MagicMock(**attrs)
-        self._driver.config = config_mock
 
     def setup_test(self):
         self._driver.create_driver()
@@ -56,3 +53,7 @@ class ElementTest(unittest.TestCase):
         button = self._driver.get_element("search-button")
         button.click()
         self.assertEqual(self._driver.driver.current_url, "https://www.python.org/search/?q=&submit=")
+
+    def tearDown(self):
+        self._driver.config = None
+        self._driver.close()

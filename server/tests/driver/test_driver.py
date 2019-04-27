@@ -91,4 +91,5 @@ class DriverTest(unittest.TestCase):
         self.assertGreater(y2, y1)
 
     def tearDown(self):
-        self._driver = None
+        self._driver.config = None
+        self._driver.close()
