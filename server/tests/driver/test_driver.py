@@ -1,6 +1,5 @@
 import unittest
-from unittest import mock
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 from selenium.common.exceptions import TimeoutException, WebDriverException
 from selenium.webdriver.common.by import By
@@ -41,7 +40,7 @@ class DriverTest(unittest.TestCase):
         self.assertIsInstance(element, WebElement)
         self.assertIsNotNone(element)
 
-    @mock.patch("selenium.webdriver.support.ui.WebDriverWait.until", side_effect=TimeoutException)
+    @patch("selenium.webdriver.support.ui.WebDriverWait.until", side_effect=TimeoutException)
     def test_should_throw_timeout_exception(self, wd_mock):
         self.setup_test()
         with self.assertRaises(TimeoutException):

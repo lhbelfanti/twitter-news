@@ -5,8 +5,8 @@ class Login(Injectable):
     def __init__(self):
         super().__init__()
 
-    def login_user(self):
-        raise NotImplementedError("must define login_user to use this base class")
+    def authenticate(self):
+        raise NotImplementedError("must define authenticate to use this base class")
 
     # Injectable implementations
     def _define_dependencies(self):

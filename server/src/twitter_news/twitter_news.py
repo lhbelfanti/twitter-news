@@ -38,7 +38,7 @@ class TwitterNews:
 
     def _login(self):
         login = self._inj.get_service(Login)
-        login.login_user()
+        login.authenticate()
 
     def _get_trends(self):
         trends_scrapper = self._inj.get_service(TrendsScrapper)
