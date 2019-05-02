@@ -35,11 +35,11 @@ class DefaultTrendsScrapper(TrendsScrapper):
         try:
             self._driver.wait_until_load(constants.TRENDS_INNER_MODULE)
             time.sleep(self._config.get("wait_page_load"))
-            self._get_trends_data()
+            self._obtain_trends()
         except TimeoutException:
             raise LoadingTimeout()
 
-    def _get_trends_data(self):
+    def _obtain_trends(self):
         # Get all of the items of the list
         items = self._driver.get_elements(constants.TREND_ITEM)
         quantity = len(items)
@@ -47,24 +47,30 @@ class DefaultTrendsScrapper(TrendsScrapper):
         trends_data = []
 
         for item in items:
-            # Get information of each item
-            try:
-                a_element = item.get_element(constants.TREND_A_TAG)
-                title_element = a_element.get_element(constants.TRENDS_TITLE)
-                desc_element = a_element.get_element(constants.TRENDS_DESC)
-                tweets_element = a_element.get_element(constants.TRENDS_TWEETS)
-                link_attr = a_element.get_attribute(constants.LINK_TAG)
-            except ElementNotFound:
-                continue
-
-            title = title_element.text
-            trend = TrendingTopic(title, desc_element.text, link_attr, tweets_element.text)
-            trends_data.append(trend)
-
-            Logger.info("Trend " + str(counter) + " of " + str(quantity) + ": " + title)
-            counter += 1
+            trend = self.get_trend_data(item)
+            if trend is not None:
+                trends_data.append(trend)
+                Logger.info("Trend " + str(counter) + " of " + str(quantity) + ": " + trend.title)
+                counter += 1
 
         Logger.info("----------------------------------------")
         self._data_manager.set_trending_topics(trends_data)
-
         Logger.info("----------------------------------------")
+
+    def get_trend_data(self, item) -> TrendingTopic:
+        # Get information of each item
+        try:
+            a_element = item.get_element(constants.TREND_A_TAG)
+            title_element = a_element.get_element(constants.TRENDS_TITLE)
+            desc_element = a_element.get_element(constants.TRENDS_DESC)
+            tweets_element = a_element.get_element(constants.TRENDS_TWEETS)
+            link_attr = a_element.get_attribute(constants.LINK_TAG)
+        except ElementNotFound:
+            # Ignoring Pycharm warning
+            # noinspection PyTypeChecker
+            return None
+
+        title = title_element.text
+        trend = TrendingTopic(title, desc_element.text, link_attr, tweets_element.text)
+        return trend
+

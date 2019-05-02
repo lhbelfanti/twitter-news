@@ -1,4 +1,5 @@
 from di import Injectable
+from trends import TrendingTopic
 
 
 class TrendsScrapper(Injectable):
@@ -7,6 +8,10 @@ class TrendsScrapper(Injectable):
 
     def get_trends(self):
         raise NotImplementedError("must define get_trends to use this base class")
+
+    # Should be used to get the data of each trending topic
+    def get_trend_data(self, data) -> TrendingTopic:
+        raise NotImplementedError("must define get_trend_data to use this base class")
 
     # Injectable implementations
     def _define_dependencies(self):

@@ -9,16 +9,16 @@ from login import DefaultLogin
 
 class LoginTest(unittest.TestCase):
     def setUp(self):
-        # Create Driver
+        # Dependencies
         self._driver = TwitterDriver()
         attrs = {'get.return_value': 0}
-        config_mock = MagicMock(**attrs)
-        self._driver.config = config_mock
+        self._config = MagicMock(**attrs)
+        self._driver.config = self._config
         self._driver.create_driver()
-        # Create Login
+        # Login
         self._login = DefaultLogin()
         self._login._driver = self._driver
-        self._login._config = config_mock
+        self._login._config = self._config
 
     @patch("logger.Logger.info", return_value="")
     @patch("driver.TwitterDriver.wait_until_load", Mock())
@@ -45,4 +45,5 @@ class LoginTest(unittest.TestCase):
 
     def tearDown(self):
         self._driver.close()
+        self._config = None
         self._login = None

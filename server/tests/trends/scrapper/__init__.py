@@ -1,0 +1,1 @@
+from .test_trends_scrapper import TrendsScrapperTest
