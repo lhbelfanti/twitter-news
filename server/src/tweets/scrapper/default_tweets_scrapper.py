@@ -15,7 +15,6 @@ class DefaultTweetsScrapper(TweetsScrapper):
         self._driver = None
         self._config = None
         self._data_manager = None
-        self._stream_items = None
         self._trends_data = None
         self._trending_topics = []
 
@@ -40,40 +39,43 @@ class DefaultTweetsScrapper(TweetsScrapper):
             Logger.info("---------- From " + trend.title + ": ----------")
             trend_filter = TrendFilter(self._driver, self._config, trend)
             trend_filter.start()
-            self._stream_items = trend_filter.stream_items
+            stream_items = trend_filter.stream_items
             self._driver.scroll_to_bottom(self._config.get("times_to_scroll_to_bottom"))
-            self._get_tweets_data(trend)
+
+            # Obtain tweets
+            tweets_obj = self._driver.get_elements(constants.TWEET_ITEM, stream_items)
+            for tweet_obj in tweets_obj:
+                tweet = self._get_tweet_data(tweet_obj)
+                trend.tweets.append(tweet)
+            self._trending_topics.append(trend)
+
             if trends_gotten == trends_to_get:
                 break
 
         self._data_manager.set_trending_topics(self._trending_topics)
         Logger.info("----------------------------------------")
 
-    def _get_tweets_data(self, trend):
-        tweets_obj = self._driver.get_elements(constants.TWEET_ITEM, self._stream_items)
-        for tweet_obj in tweets_obj:
-            tweet_data = tweet_obj.get_element(constants.TWEET)
-            tweet_user = tweet_data.get_element(constants.TWEET_USER)
-            user = tweet_user.get_attribute(constants.LINK_TAG)
-            tweet_text = tweet_data.get_element(constants.TWEET_TEXT)
-            text = tweet_text.text
-            images = []
-            Logger.info(text)
-            try:
-                media_container = tweet_data.get_element(constants.MEDIA_CONTAINER)
-                tweet_images = media_container.get_elements(constants.IMG_TAG)
+    def _get_tweet_data(self, tweet_obj) -> Tweet:
+        tweet_data = tweet_obj.get_element(constants.TWEET)
+        tweet_user = tweet_data.get_element(constants.TWEET_USER)
+        user = tweet_user.get_attribute(constants.LINK_TAG)
+        tweet_text = tweet_data.get_element(constants.TWEET_TEXT)
+        text = tweet_text.text
+        images = []
+        Logger.info(text)
+        try:
+            media_container = tweet_data.get_element(constants.MEDIA_CONTAINER)
+            tweet_images = media_container.get_elements(constants.IMG_TAG)
 
-                for img in tweet_images:
-                    image = img.get_attribute(constants.SRC_TAG)
-                    image = image.replace("'", "")
-                    images.append(image)
-            except ElementNotFound:
-                Logger.info("")  # The tweet doesn't contain any image -> empty log because of the spam it causes
+            for img in tweet_images:
+                image = img.get_attribute(constants.SRC_TAG)
+                image = image.replace("'", "")
+                images.append(image)
+        except ElementNotFound:
+            Logger.info("")  # The tweet doesn't contain any image -> empty log because of the spam it causes
 
-            user = user.replace("'", "")
-            text = text.replace("\n", '').replace("\r", '').replace("\t", '')
-            text = text.strip()
+        user = user.replace("'", "")
+        text = text.replace("\n", '').replace("\r", '').replace("\t", '')
+        text = text.strip()
 
-            tweet = Tweet(user, text, images)
-            trend.tweets.append(tweet)
-        self._trending_topics.append(trend)
+        return Tweet(user, text, images)
