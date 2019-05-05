@@ -3,10 +3,10 @@ from logger import Logger
 from utils import regex
 from ttp import ttp
 
-from tweets.analyzer import TweetAnalyzer
+from tweets.analyzer import TweetsAnalyzer
 
 
-class DefaultTweetAnalyzer(TweetAnalyzer):
+class DefaultTweetsAnalyzer(TweetsAnalyzer):
     def __init__(self):
         super().__init__()
         self._data_manager = None

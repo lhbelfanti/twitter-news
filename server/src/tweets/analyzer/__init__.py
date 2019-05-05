@@ -1,2 +1,2 @@
-from .tweet_analyzer import TweetAnalyzer
-from .default_tweet_analyzer import DefaultTweetAnalyzer
+from .tweets_analyzer import TweetsAnalyzer
+from .default_tweets_analyzer import DefaultTweetsAnalyzer

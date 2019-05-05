@@ -9,7 +9,7 @@ from logger import Logger
 from login import Login
 from news.maker import NewsMaker
 from trends.scrapper import TrendsScrapper
-from tweets.analyzer import TweetAnalyzer
+from tweets.analyzer import TweetsAnalyzer
 from tweets.scrapper import TweetsScrapper
 
 
@@ -49,7 +49,7 @@ class TwitterNews:
         tweets_scrapper.get_tweets()
 
     def _analyze_tweets(self):
-        analyzer = self._inj.get_service(TweetAnalyzer)
+        analyzer = self._inj.get_service(TweetsAnalyzer)
         analyzer.analyze()
 
     def _create_news(self):

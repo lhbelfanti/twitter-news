@@ -1,7 +1,7 @@
 from di import Injectable
 
 
-class TweetAnalyzer(Injectable):
+class TweetsAnalyzer(Injectable):
     def __init__(self):
         super().__init__()
 

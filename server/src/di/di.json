@@ -5,6 +5,6 @@
   "Login": "src.login.DefaultLogin",
   "TrendsScrapper": "src.trends.scrapper.DefaultTrendsScrapper",
   "TweetsScrapper": "src.tweets.scrapper.DefaultTweetsScrapper",
-  "TweetAnalyzer": "src.tweets.analyzer.DefaultTweetAnalyzer",
+  "TweetsAnalyzer": "src.tweets.analyzer.DefaultTweetsAnalyzer",
   "NewsMaker": "src.news.maker.DefaultNewsMaker"
 }
