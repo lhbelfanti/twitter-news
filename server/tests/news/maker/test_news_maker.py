@@ -64,10 +64,10 @@ class NewsMakerTest(unittest.TestCase):
 
     @patch("logger.Logger.info", return_value="")
     @patch("logger.Logger.error", return_value="")
-    @patch("constants.NEWS_JSON", "../../../out/news.json")
+    @patch("constants.NEWS_JSON", "./out/news.json")
     def test_create_news(self, info_mock, error_mock):  # Clean news.json before run this test
         self._news_maker.create_news()
-        with open("../../../out/news.json") as json_data:
+        with open("./out/news.json") as json_data:
             news_data = json.load(json_data)
 
         for i in range(0, len(news_data)):
