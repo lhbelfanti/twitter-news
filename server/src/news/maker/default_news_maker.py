@@ -29,7 +29,7 @@ class DefaultNewsMaker(NewsMaker):
 
     def create_news(self):
         trends_processor = TrendsProcessor(self._data_manager.get_trending_topics())
-        self._trends = trends_processor.processed_trends
+        self._trends = trends_processor.get_processed_trends()
         Logger.info("Creating news...")
         self._generate_news()
         Logger.info("----------------------------------------")

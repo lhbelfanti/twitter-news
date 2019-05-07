@@ -24,6 +24,6 @@ class TrendsProcessorTest(unittest.TestCase):
     @patch("trends.processor.ProcessedTrend.process", Mock())
     def test_trends_processor_new_instance(self):
         trends_processor = TrendsProcessor(self._trends_mock)
-        for trend in trends_processor.processed_trends:
+        for trend in trends_processor.get_processed_trends():
             self.assertIsInstance(trend, ProcessedTrend)
 
