@@ -1,2 +1,1 @@
 from .test_configuration import ConfigurationTest
-from .mock_configuration import MockConfiguration

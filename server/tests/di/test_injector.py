@@ -9,15 +9,15 @@ from exceptions import ServiceNotFound, CircularDependency, NonExistentService, 
 class InjectorTest(unittest.TestCase):
     def setUp(self):
         self._di_config = {
-            "Service": "client.tests.di.services.Service0",
-            "Service0": "client.tests.di.services.Service0",
-            "Service1": "client.tests.di.services.circular_dependency.Service1",
-            "Service2": "client.tests.di.services.circular_dependency.Service2",
-            "Service3": "client.tests.di.services.circular_dependency.Service3",
-            "Service4": "client.tests.di.services.circular_dependency.Service4",
-            "Service5": "client.tests.di.services.circular_dependency.Service5",
-            "Service6": "client.tests.di.services.circular_dependency.Service6",
-            "Service7": "client.tests.di.services.circular_dependency.Service7"
+            "Service": "server.tests.di.services.Service0",
+            "Service0": "server.tests.di.services.Service0",
+            "Service1": "server.tests.di.services.circular_dependency.Service1",
+            "Service2": "server.tests.di.services.circular_dependency.Service2",
+            "Service3": "server.tests.di.services.circular_dependency.Service3",
+            "Service4": "server.tests.di.services.circular_dependency.Service4",
+            "Service5": "server.tests.di.services.circular_dependency.Service5",
+            "Service6": "server.tests.di.services.circular_dependency.Service6",
+            "Service7": "server.tests.di.services.circular_dependency.Service7"
         }
         self._injector = None
         self._create_injector()
@@ -59,14 +59,14 @@ class InjectorTest(unittest.TestCase):
         print(cm.exception.args[0])
 
     def test_non_existent_service(self):
-        self._di_config = {"NonExistentService": "client.tests.di.services.NonExistentService"}
+        self._di_config = {"NonExistentService": "server.tests.di.services.NonExistentService"}
 
         with self.assertRaises(NonExistentService) as cm:
             self._create_injector()
         print(cm.exception.args[0])
 
     def test_injectable_not_implemented(self):
-        self._di_config = {"InjectableNotImplemented": "client.tests.di.services.InjectableNotImplemented"}
+        self._di_config = {"InjectableNotImplemented": "server.tests.di.services.InjectableNotImplemented"}
 
         with self.assertRaises(InjectableNotImplemented) as cm:
             self._create_injector()

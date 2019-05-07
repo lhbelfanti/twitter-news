@@ -10,12 +10,8 @@ from trends.scrapper import DefaultTrendsScrapper
 
 
 class TrendsScrapperTest(unittest.TestCase):
-    # Methods calls
-    methods_calls = {
-        "_get_elements_mock": {"calls": 0, "data": []},
-        "_get_trend_data_mock": {"calls": 0, "data": []},
-        "_get_element": {"calls": 0, "data": None}
-    }
+
+    methods_calls = {}
 
     def setUp(self):
         # Dependencies
@@ -30,6 +26,16 @@ class TrendsScrapperTest(unittest.TestCase):
         self._trends_scrapper._driver = self._driver
         self._trends_scrapper._config = self._config
         self._trends_scrapper._data_manager = self._data_manager
+
+        self._reset_methods_calls()
+
+    def _reset_methods_calls(self):
+        # Methods calls
+        TrendsScrapperTest.methods_calls = {
+            "_get_elements_mock": {"calls": 0, "data": []},
+            "_get_trend_data_mock": {"calls": 0, "data": []},
+            "_get_element": {"calls": 0, "data": None}
+        }
 
     def _get_elements_mock(self, element_id):
         elements = []
@@ -52,7 +58,7 @@ class TrendsScrapperTest(unittest.TestCase):
         trend_mock.tweets_num = item.tweets_num
         trend_mock.url = item.url
         TrendsScrapperTest.methods_calls["_get_trend_data_mock"]["calls"] += 1
-        TrendsScrapperTest.methods_calls["_get_elements_mock"]["data"].append(trend_mock)
+        TrendsScrapperTest.methods_calls["_get_trend_data_mock"]["data"].append(trend_mock)
         return trend_mock
 
     @patch("logger.Logger.info", return_value="")
@@ -60,11 +66,12 @@ class TrendsScrapperTest(unittest.TestCase):
     @patch("driver.TwitterDriver.get_elements", new=_get_elements_mock)
     @patch("trends.scrapper.DefaultTrendsScrapper.get_trend_data", new=_get_trend_data_mock)
     def test_get_trends(self, logger_mock):
+        self._reset_methods_calls()
         self._trends_scrapper.get_trends()
         self.assertEqual(TrendsScrapperTest.methods_calls["_get_elements_mock"]["calls"], 1)
         self.assertEqual(TrendsScrapperTest.methods_calls["_get_trend_data_mock"]["calls"], 8)
         data_manager_trends = self._trends_scrapper._data_manager.get_trending_topics()
-        trending_topics = TrendsScrapperTest.methods_calls["_get_elements_mock"]["data"]
+        trending_topics = TrendsScrapperTest.methods_calls["_get_trend_data_mock"]["data"]
         for i in range(0, len(data_manager_trends)):
             self.assertEqual(data_manager_trends[i], trending_topics[i])
 
@@ -84,6 +91,7 @@ class TrendsScrapperTest(unittest.TestCase):
         return item_mock
 
     def test_get_trend_data(self):
+        self._reset_methods_calls()
         attrs = {'get_element.return_value': self._get_element()}
         item = MagicMock(**attrs)
         trend = self._trends_scrapper.get_trend_data(item)
@@ -91,6 +99,7 @@ class TrendsScrapperTest(unittest.TestCase):
 
     @patch("logger.Logger.info", return_value="")
     def test_should_throw_timeout_exception(self, logger_mock):
+        self._reset_methods_calls()
         with self.assertRaises(LoadingTimeout) as cm:
             self._trends_scrapper.get_trends()
         print(cm.exception.args[0])

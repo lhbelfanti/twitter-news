@@ -8,11 +8,8 @@ from tweets.scrapper import DefaultTweetsScrapper
 
 
 class TweetsScrapperTest(unittest.TestCase):
-    # Methods calls
-    methods_calls = {
-        "_create_tweets": {"calls": 0, "data": []},
-        "_create_new_tweet": {"calls": 0, "data": []}
-    }
+
+    methods_calls = {}
 
     def setUp(self):
         # Dependencies
@@ -28,6 +25,15 @@ class TweetsScrapperTest(unittest.TestCase):
         self._tweets_scrapper._config = self._config
         self._tweets_scrapper._data_manager = self._data_manager
         self._tweets_scrapper._trends_data = self._create_trends()
+
+        self._reset_methods_calls()
+
+    def _reset_methods_calls(self):
+        # Methods calls
+        TweetsScrapperTest.methods_calls = {
+            "_create_tweets": {"calls": 0, "data": []},
+            "_create_new_tweet": {"calls": 0, "data": []}
+        }
 
     def _create_trends(self):
         trends = []
@@ -75,6 +81,7 @@ class TweetsScrapperTest(unittest.TestCase):
     @patch("trends.TrendFilter.start", Mock())
     @patch("tweets.scrapper.DefaultTweetsScrapper._get_tweet_data", new=_create_new_tweet)
     def test_get_tweets(self, logger_mock):
+        self._reset_methods_calls()
         self._tweets_scrapper.get_tweets()
         self.assertEqual(TweetsScrapperTest.methods_calls["_create_tweets"]["calls"], 5)  # called once per trend
         self.assertEqual(TweetsScrapperTest.methods_calls["_create_new_tweet"]["calls"], 25)  # 5 tweets per trend
