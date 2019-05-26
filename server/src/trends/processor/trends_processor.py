@@ -3,14 +3,15 @@ from trends.processor import ProcessedTrend
 
 class TrendsProcessor:
 
-    def __init__(self, trending_topics):
+    def __init__(self, trending_topics, config):
         self._trending_topics = trending_topics
         self._processed_trends = []
+        self._config = config
         self._analyze()
 
     def _analyze(self):
         for trend in self._trending_topics:
-            processed_trend = ProcessedTrend(trend)
+            processed_trend = ProcessedTrend(trend, self._config)
             processed_trend.process()
             self._processed_trends.append(processed_trend)
 

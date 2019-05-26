@@ -8,10 +8,10 @@ class Driver(Injectable):
     def create_driver(self):
         raise NotImplementedError("must define create_driver to use this base class")
 
-    def get_element(self, element_id, from_item, by):
+    def get_element(self, element_id, by, from_item):
         raise NotImplementedError("must define get_element to use this base class")
 
-    def get_elements(self, element_id, from_item, by):
+    def get_elements(self, element_id, by, from_item):
         raise NotImplementedError("must define get_elements to use this base class")
 
     def wait_until_load(self, element_id, by):

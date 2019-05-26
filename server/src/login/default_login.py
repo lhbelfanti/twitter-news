@@ -31,7 +31,7 @@ class DefaultLogin(Login):
     def authenticate(self):
         Logger.info("Logging in...")
         try:
-            self._driver.wait_until_load(constants.PASSWORD_ELEMENT)
+            self._driver.wait_until_load(self._config.get_prop("password_element"))
             self._get_form_elements()
             self._login()
         except TimeoutException:
@@ -39,23 +39,23 @@ class DefaultLogin(Login):
 
     def _get_form_elements(self):
         # Getting form element
-        form = self._driver.get_element(constants.FORM_ELEMENT)
+        form = self._driver.get_element(self._config.get_prop("form_element"))
 
         # Getting username and password input container
-        username = form.get_element(constants.USERNAME_ELEMENT)
-        password = form.get_element(constants.PASSWORD_ELEMENT)
+        username = form.get_element(self._config.get_prop("username_element"))
+        password = form.get_element(self._config.get_prop("password_element"))
 
         # Getting username and password input elements
-        self._username_input = username.get_element(constants.LOGIN_INPUT_CLASS)
-        self._password_input = password.get_element(constants.LOGIN_INPUT_CLASS)
-        self._submit_button = form.get_element(constants.SUBMIT_FORM, By.CSS_SELECTOR)
+        self._username_input = username.get_element(self._config.get_prop("login_input_class"))
+        self._password_input = password.get_element(self._config.get_prop("login_input_class"))
+        self._submit_button = form.get_element(self._config.get_prop("submit_form"), By.CSS_SELECTOR)
 
     def _login(self):
         # Write username
         self._username_input.write(constants.USERNAME)
 
         # Sometimes the password is not written, so we wait 1 sec and then we write it
-        time.sleep(self._config.get("wait_password"))
+        time.sleep(self._config.get_prop("wait_password", constants.DE_CFG))
 
         # Write password
         self._password_input.write(constants.PASSWORD)

@@ -1,10 +1,8 @@
 import sys
 
-import json
 import constants
 from logger import Logger
 from twitter_news import TwitterNews
-from di import Injector
 
 Logger.load()
 args = sys.argv
@@ -17,12 +15,6 @@ else:
     constants.USERNAME = args[1]
     constants.PASSWORD = args[2]
 
-# Initialize the Injector
-with open(constants.DI_JSON) as config_file:
-    config = json.load(config_file)
-inj = Injector(config)
-inj.load()
-
 # Start the app
-twitter = TwitterNews(inj)
+twitter = TwitterNews()
 twitter.start()

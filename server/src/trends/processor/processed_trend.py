@@ -1,12 +1,12 @@
-import constants
 from utils import add_dot_at_the_end
 
 
 class ProcessedTrend:
-    def __init__(self, trend):
+    def __init__(self, trend, config):
         self.title = trend.title
         self.desc = trend.desc
-        self.url = trend.url.split(constants.TREND_URL_TAG)[0] + constants.TREND_URL_TAG
+        trend_url_tag = config.get_prop("trend_url_tag")
+        self.url = trend.url.split(trend_url_tag)[0] + trend_url_tag
         self.tweets_num = trend.tweets_num
         self.tweets = trend.tweets
         # Variables with processed data

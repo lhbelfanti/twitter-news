@@ -28,7 +28,7 @@ class DefaultNewsMaker(NewsMaker):
         self._markov_chain = MarkovChain(self._config)
 
     def create_news(self):
-        trends_processor = TrendsProcessor(self._data_manager.get_trending_topics())
+        trends_processor = TrendsProcessor(self._data_manager.get_trending_topics(), self._config)
         self._trends = trends_processor.get_processed_trends()
         Logger.info("Creating news...")
         self._generate_news()

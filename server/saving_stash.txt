@@ -1,0 +1,880 @@
+diff --git a/server/src/config/configuration.py b/server/src/config/configuration.py
+index 72d2576..c4ebe6a 100644
+--- a/server/src/config/configuration.py
++++ b/server/src/config/configuration.py
+@@ -5,8 +5,11 @@ class Configuration(Injectable):
+     def __init__(self):
+         super().__init__()
+ 
+-    def get(self, prop):
+-        raise NotImplementedError("must define get to use this base class")
++    def define_twitter_ui_version(self, data):
++        raise NotImplementedError("must define define_twitter_ui_version to use this base class")
++
++    def get_prop(self, prop, config):
++        raise NotImplementedError("must define get_prop to use this base class")
+ 
+     # Injectable implementations
+     def _define_dependencies(self):
+diff --git a/server/src/config/default_configuration.py b/server/src/config/default_configuration.py
+index 7f29da5..5c71d63 100644
+--- a/server/src/config/default_configuration.py
++++ b/server/src/config/default_configuration.py
+@@ -10,6 +10,8 @@ class DefaultConfiguration(Configuration):
+     def __init__(self):
+         super().__init__()
+         self._config = {}
++        self._common = constants.COMMON
++        self._ui_version = self._common
+ 
+     def _define_dependencies(self):
+         pass
+@@ -22,12 +24,39 @@ class DefaultConfiguration(Configuration):
+             self._config = data
+             return
+ 
+-        path = os.path.abspath(os.path.join(os.path.dirname(__file__), constants.CONFIG_PATH))
+-        with open(path) as config_file:
+-            Logger.info("Loading configuration file.")
+-            self._config = json.load(config_file)
+-            Logger.info("Configuration loaded.")
+-
+-    def get(self, prop):
+-        return self._config[prop]
++        path = os.path.abspath(os.path.join(os.path.dirname(__file__), constants.CONFIGS_PATH))
++        with open(path) as configs_file:
++            Logger.info("Loading configuration files.")
++            configs = json.load(configs_file)
++            for config in configs:
++                config_path = os.path.abspath(os.path.join(os.path.dirname(__file__), configs[config]))
++                with open(config_path) as config_file:
++                    Logger.info("Loading " + config + "...")
++                    config_data = json.load(config_file)
++                    self._config[config] = config_data
++
++            Logger.info("Configurations loaded.")
++
++    def define_twitter_ui_version(self, url):
++        if url == "https://twitter.com/":
++            self._ui_version = constants.V1
++        elif url == "https://twitter.com/home":
++            self._ui_version = constants.V2
++
++    def ui_version(self, version):
++        return self._ui_version == version
++
++    def get_prop(self, prop, config=constants.SE_CFG):
++        # Selenium Configuration
++        if config == constants.SE_CFG:
++            data = self._config[config]
++            if prop in data[self._ui_version]:
++                return data[self._ui_version][prop]
++            elif prop in data[self._common]:
++                return data[self._common][prop]
++            else:
++                return ""
++
++        # Default Configuration
++        return self._config[config][prop]
+ 
+diff --git a/server/src/constants/constants.py b/server/src/constants/constants.py
+index 39bab09..8faa773 100644
+--- a/server/src/constants/constants.py
++++ b/server/src/constants/constants.py
+@@ -2,48 +2,18 @@
+ TWITTER_URL = "https://twitter.com/"
+ NEWS_JSON = "./out/news.json"
+ REGEX_SCRIPT = "../regex/regex.js"
+-CONFIG_PATH = "./config.json"
++CONFIGS_PATH = "./data/configs.json"
+ DI_JSON = "./src/di/di.json"
+ CLIENT_PATH = "/../client"
+ 
+-# --- Selenium ---
+-
+-# Tags
+-LINK_TAG = "href"
+-IMG_TAG = "img"
+-SRC_TAG = "src"
+-
+ # Login
+ USERNAME = ""
+ PASSWORD = ""
+ 
+-FORM_ELEMENT = "LoginForm"
+-USERNAME_ELEMENT = "LoginForm-username"
+-PASSWORD_ELEMENT = "LoginForm-password"
+-LOGIN_INPUT_CLASS = "text-input"
+-SUBMIT_FORM = "input[type='submit']"
+-
+-# Trends
+-TRENDS_INNER_MODULE = "flex-module-inner"
+-TREND_ITEMS = "trend-items"
+-TREND_ITEM = "trend-item"
+-TREND_A_TAG = "pretty-link"
+-TRENDS_TITLE = "trend-name"
+-TRENDS_DESC = "trend-item-context"
+-TRENDS_TWEETS = "trend-item-stats"
+-TRENDS_QUERY_DATA_SOURCE = "data-query-source"
+-TRENDS_PROMOTED = "promoted_trend_click"
+-TREND_URL_TAG = "src=tren"
+-
+-# Tweets
+-TWEETS_LIST = "stream-items"
+-TWEET_USER = "account-group"
+-TWEET_ITEM = "stream-item"
+-TWEET = "tweet"
+-TWEET_TEXT = "tweet-text"
+-MEDIA_CONTAINER = "AdaptiveMedia-container"
++# --- Configurations ---
++DE_CFG = "default_config"
++SE_CFG = "selenium_config"
+ 
+-# Search filter
+-DEFAULT_FILTER = "?vertical=default"
+-LOCATION_FILTER = "&near=me"
+-LANGUAGE_FILTER = "&l=es"
++COMMON = "common"
++V1 = "v1"
++V2 = "v2"
+diff --git a/server/src/di/injector.py b/server/src/di/injector.py
+index e07df5a..cf1fec9 100644
+--- a/server/src/di/injector.py
++++ b/server/src/di/injector.py
+@@ -1,4 +1,6 @@
+ import importlib
++import constants
++import json
+ 
+ from di import Injectable
+ from exceptions import ServiceNotFound, CircularDependency, NonExistentService, InjectableNotImplemented
+@@ -6,8 +8,17 @@ from exceptions import ServiceNotFound, CircularDependency, NonExistentService,
+ 
+ class Injector(object):
+ 
+-    def __init__(self, di_config):
+-        self._di = di_config
++    _instance = None
++
++    @classmethod
++    def get_instance(cls):
++        if not cls._instance:
++            cls._instance = cls()
++        return cls._instance
++
++    def __init__(self):
++        with open(constants.DI_JSON) as config_file:
++            self._di = json.load(config_file)
+         self._services = {}
+ 
+     def load(self):
+diff --git a/server/src/driver/driver.py b/server/src/driver/driver.py
+index 21717b7..e377095 100644
+--- a/server/src/driver/driver.py
++++ b/server/src/driver/driver.py
+@@ -8,10 +8,10 @@ class Driver(Injectable):
+     def create_driver(self):
+         raise NotImplementedError("must define create_driver to use this base class")
+ 
+-    def get_element(self, element_id, from_item, by):
++    def get_element(self, element_id, by, from_item):
+         raise NotImplementedError("must define get_element to use this base class")
+ 
+-    def get_elements(self, element_id, from_item, by):
++    def get_elements(self, element_id, by, from_item):
+         raise NotImplementedError("must define get_elements to use this base class")
+ 
+     def wait_until_load(self, element_id, by):
+diff --git a/server/src/driver/elements/web_element.py b/server/src/driver/elements/web_element.py
+index 589d8a5..61608a1 100644
+--- a/server/src/driver/elements/web_element.py
++++ b/server/src/driver/elements/web_element.py
+@@ -7,11 +7,11 @@ class WebElement(Element):
+     def __init__(self, element, driver, tag=""):
+         super().__init__(element, driver, tag)
+ 
+-    def get_element(self, element_id, by=By.CLASS_NAME):
+-        return self.driver.get_element(element_id, self.element, by)
++    def get_element(self, element_id, by=By.CLASS_NAME, force_default=False):
++        return self.driver.get_element(element_id, by, self.element, force_default)
+ 
+     def get_elements(self, element_id, by=By.TAG_NAME):
+-        return self.driver.get_elements(element_id, self.element, by)
++        return self.driver.get_elements(element_id, by, self.element)
+ 
+     def get_attribute(self, attr_id):
+         return self.element.get_attribute(attr_id)
+@@ -24,4 +24,4 @@ class WebElement(Element):
+ 
+     @property
+     def text(self):
+-        return self.element.text
++        return self.element.text if self.element is not None else ""
+diff --git a/server/src/driver/twitter_driver.py b/server/src/driver/twitter_driver.py
+index 9051919..71f5fef 100644
+--- a/server/src/driver/twitter_driver.py
++++ b/server/src/driver/twitter_driver.py
+@@ -1,4 +1,5 @@
+ import time
++import constants
+ 
+ from selenium import webdriver
+ from selenium.webdriver.chrome.options import Options
+@@ -30,14 +31,14 @@ class TwitterDriver(Driver):
+     def create_driver(self):
+         # Load the Chrome webdriver
+         chrome_options = Options()
+-        chrome_options.add_argument("--headless")
++        #chrome_options.add_argument("--headless")
+         chrome_options.add_argument("--window-size=1920,1080")
+ 
+         # download the chrome driver from https://sites.google.com/a/chromium.org/chromedriver/downloads
+         # and put it as an environment variable
+         self._driver = webdriver.Chrome(options=chrome_options, executable_path="chromedriver")
+ 
+-    def get_element(self, element_id, from_item=None, by=By.CLASS_NAME):
++    def get_element(self, element_id, by=By.CLASS_NAME, from_item=None, force_default=False):
+         from_item = self._driver if from_item is None else from_item
+         elements = from_item.find_elements(by, element_id)
+         size = len(elements)
+@@ -45,18 +46,21 @@ class TwitterDriver(Driver):
+         if size > 0:
+             e = elements[0]
+             return self._create_element(e, e.tag_name)
++        elif force_default:
++            return self._create_element(None, "tag")
+         else:
+             raise ElementNotFound()
+ 
+-    def get_elements(self, element_id, from_item=None, by=By.CLASS_NAME):
++    def get_elements(self, element_id, by=By.CLASS_NAME, from_item=None):
+         from_item = self._driver if from_item is None else from_item
+         items = from_item.find_elements(by, element_id)
+         elements = self._create_elements(items)
+         return elements
+ 
+     def wait_until_load(self, element_id, by=By.CLASS_NAME):
+-        return WebDriverWait(self._driver, self._config.get("loading_timeout")).until(
+-            Ec.element_to_be_clickable((by, element_id)))
++        return WebDriverWait(self._driver,
++                             self._config.get_prop("loading_timeout", constants.DE_CFG)
++                             ).until(Ec.element_to_be_clickable((by, element_id)))
+ 
+     def navigate_to(self, url):
+         self._driver.get(url)
+@@ -70,7 +74,7 @@ class TwitterDriver(Driver):
+             # Scroll down to bottom
+             self._driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+             # Wait to load page
+-            time.sleep(self._config.get("scroll_pause_time"))
++            time.sleep(self._config.get_prop("scroll_pause_time", constants.DE_CFG))
+             # Calculate new scroll height and compare with last scroll height
+             new_height = self._driver.execute_script("return document.body.scrollHeight")
+             if new_height == last_height:
+diff --git a/server/src/login/default_login.py b/server/src/login/default_login.py
+index 8dc47ea..fe67ab5 100644
+--- a/server/src/login/default_login.py
++++ b/server/src/login/default_login.py
+@@ -31,7 +31,7 @@ class DefaultLogin(Login):
+     def authenticate(self):
+         Logger.info("Logging in...")
+         try:
+-            self._driver.wait_until_load(constants.PASSWORD_ELEMENT)
++            self._driver.wait_until_load(self._config.get_prop("password_element"))
+             self._get_form_elements()
+             self._login()
+         except TimeoutException:
+@@ -39,23 +39,23 @@ class DefaultLogin(Login):
+ 
+     def _get_form_elements(self):
+         # Getting form element
+-        form = self._driver.get_element(constants.FORM_ELEMENT)
++        form = self._driver.get_element(self._config.get_prop("form_element"))
+ 
+         # Getting username and password input container
+-        username = form.get_element(constants.USERNAME_ELEMENT)
+-        password = form.get_element(constants.PASSWORD_ELEMENT)
++        username = form.get_element(self._config.get_prop("username_element"))
++        password = form.get_element(self._config.get_prop("password_element"))
+ 
+         # Getting username and password input elements
+-        self._username_input = username.get_element(constants.LOGIN_INPUT_CLASS)
+-        self._password_input = password.get_element(constants.LOGIN_INPUT_CLASS)
+-        self._submit_button = form.get_element(constants.SUBMIT_FORM, By.CSS_SELECTOR)
++        self._username_input = username.get_element(self._config.get_prop("login_input_class"))
++        self._password_input = password.get_element(self._config.get_prop("login_input_class"))
++        self._submit_button = form.get_element(self._config.get_prop("submit_form"), By.CSS_SELECTOR)
+ 
+     def _login(self):
+         # Write username
+         self._username_input.write(constants.USERNAME)
+ 
+         # Sometimes the password is not written, so we wait 1 sec and then we write it
+-        time.sleep(self._config.get("wait_password"))
++        time.sleep(self._config.get_prop("wait_password", constants.DE_CFG))
+ 
+         # Write password
+         self._password_input.write(constants.PASSWORD)
+diff --git a/server/src/markov_chain/markov_chain.py b/server/src/markov_chain/markov_chain.py
+index 7639b55..e6583e4 100644
+--- a/server/src/markov_chain/markov_chain.py
++++ b/server/src/markov_chain/markov_chain.py
+@@ -1,3 +1,4 @@
++import constants
+ import markovify
+ 
+ from markov_chain import SpacyText
+@@ -9,7 +10,7 @@ class MarkovChain:
+ 
+     def execute(self, text):
+         # Build the model.
+-        activate_nlp = self.config.get("activate_nlp")
++        activate_nlp = self.config.get_prop("activate_nlp", constants.DE_CFG)
+         if activate_nlp:
+             SpacyText.load_dict()
+             text_model = SpacyText(text)
+@@ -19,7 +20,7 @@ class MarkovChain:
+         body = ""
+         sentences = []
+         # Create randomly-generated sentences
+-        sentences_to_generate = self.config.get("sentences_to_generate")
++        sentences_to_generate = self.config.get_prop("sentences_to_generate", constants.DE_CFG)
+         for i in range(sentences_to_generate):
+             sentence = text_model.make_sentence()
+             if sentence is not None and sentence not in sentences:
+diff --git a/server/src/news/maker/default_news_maker.py b/server/src/news/maker/default_news_maker.py
+index e882610..0e18f15 100644
+--- a/server/src/news/maker/default_news_maker.py
++++ b/server/src/news/maker/default_news_maker.py
+@@ -28,7 +28,7 @@ class DefaultNewsMaker(NewsMaker):
+         self._markov_chain = MarkovChain(self._config)
+ 
+     def create_news(self):
+-        trends_processor = TrendsProcessor(self._data_manager.get_trending_topics())
++        trends_processor = TrendsProcessor(self._data_manager.get_trending_topics(), self._config)
+         self._trends = trends_processor.get_processed_trends()
+         Logger.info("Creating news...")
+         self._generate_news()
+diff --git a/server/src/start.py b/server/src/start.py
+index 2d7174d..c6542f1 100644
+--- a/server/src/start.py
++++ b/server/src/start.py
+@@ -1,10 +1,8 @@
+ import sys
+ 
+-import json
+ import constants
+ from logger import Logger
+ from twitter_news import TwitterNews
+-from di import Injector
+ 
+ Logger.load()
+ args = sys.argv
+@@ -17,12 +15,6 @@ else:
+     constants.USERNAME = args[1]
+     constants.PASSWORD = args[2]
+ 
+-# Initialize the Injector
+-with open(constants.DI_JSON) as config_file:
+-    config = json.load(config_file)
+-inj = Injector(config)
+-inj.load()
+-
+ # Start the app
+-twitter = TwitterNews(inj)
++twitter = TwitterNews()
+ twitter.start()
+diff --git a/server/src/trends/processor/processed_trend.py b/server/src/trends/processor/processed_trend.py
+index cf1b442..dbc1644 100644
+--- a/server/src/trends/processor/processed_trend.py
++++ b/server/src/trends/processor/processed_trend.py
+@@ -1,12 +1,12 @@
+-import constants
+ from utils import add_dot_at_the_end
+ 
+ 
+ class ProcessedTrend:
+-    def __init__(self, trend):
++    def __init__(self, trend, config):
+         self.title = trend.title
+         self.desc = trend.desc
+-        self.url = trend.url.split(constants.TREND_URL_TAG)[0] + constants.TREND_URL_TAG
++        trend_url_tag = config.get_prop("trend_url_tag")
++        self.url = trend.url.split(trend_url_tag)[0] + trend_url_tag
+         self.tweets_num = trend.tweets_num
+         self.tweets = trend.tweets
+         # Variables with processed data
+diff --git a/server/src/trends/processor/trends_processor.py b/server/src/trends/processor/trends_processor.py
+index 93efdb5..d5a0614 100644
+--- a/server/src/trends/processor/trends_processor.py
++++ b/server/src/trends/processor/trends_processor.py
+@@ -3,14 +3,15 @@ from trends.processor import ProcessedTrend
+ 
+ class TrendsProcessor:
+ 
+-    def __init__(self, trending_topics):
++    def __init__(self, trending_topics, config):
+         self._trending_topics = trending_topics
+         self._processed_trends = []
++        self._config = config
+         self._analyze()
+ 
+     def _analyze(self):
+         for trend in self._trending_topics:
+-            processed_trend = ProcessedTrend(trend)
++            processed_trend = ProcessedTrend(trend, self._config)
+             processed_trend.process()
+             self._processed_trends.append(processed_trend)
+ 
+diff --git a/server/src/trends/scrapper/default_trends_scrapper.py b/server/src/trends/scrapper/default_trends_scrapper.py
+index 369b473..d38de46 100644
+--- a/server/src/trends/scrapper/default_trends_scrapper.py
++++ b/server/src/trends/scrapper/default_trends_scrapper.py
+@@ -1,10 +1,12 @@
+ import time
+ 
+ from selenium.common.exceptions import TimeoutException
++from selenium.webdriver.common.by import By
+ 
+ import constants
+ from config import Configuration
+ from data import DataManager
++from decorators import version1, version2
+ from driver import Driver
+ from exceptions import ElementNotFound, LoadingTimeout
+ from logger import Logger
+@@ -33,15 +35,17 @@ class DefaultTrendsScrapper(TrendsScrapper):
+     def get_trends(self):
+         Logger.info("Getting trends...")
+         try:
+-            self._driver.wait_until_load(constants.TRENDS_INNER_MODULE)
+-            time.sleep(self._config.get("wait_page_load"))
++            self._driver.wait_until_load(self._config.get_prop("trends_inner_module"))
++            time.sleep(self._config.get_prop("wait_page_load", constants.DE_CFG))
+             self._obtain_trends()
+         except TimeoutException:
+             raise LoadingTimeout()
+ 
+     def _obtain_trends(self):
++        self._setup_page()
++
+         # Get all of the items of the list
+-        items = self._driver.get_elements(constants.TREND_ITEM)
++        items = self._driver.get_elements(self._config.get_prop("trend_item"), By.CSS_SELECTOR)
+         quantity = len(items)
+         counter = 1
+         trends_data = []
+@@ -60,17 +64,45 @@ class DefaultTrendsScrapper(TrendsScrapper):
+     def get_trend_data(self, item) -> TrendingTopic:
+         # Get information of each item
+         try:
+-            a_element = item.get_element(constants.TREND_A_TAG)
+-            title_element = a_element.get_element(constants.TRENDS_TITLE)
+-            desc_element = a_element.get_element(constants.TRENDS_DESC)
+-            tweets_element = a_element.get_element(constants.TRENDS_TWEETS)
+-            link_attr = a_element.get_attribute(constants.LINK_TAG)
++            a_element = self._get_trend_a_tag_v1(item)
++            a_element = self._get_trend_a_tag_v2(item) if a_element is None else a_element
++            title_element = a_element.get_element(self._config.get_prop("trends_title"), By.CSS_SELECTOR)
++            desc_element = a_element.get_element(self._config.get_prop("trends_desc"), By.CSS_SELECTOR, True)
++            tweets_element = a_element.get_element(self._config.get_prop("trends_tweets"), By.CSS_SELECTOR)
++            link_attr = self._get_link_attr_v1(a_element)
++            link_attr = self._get_link_attr_v2(a_element) if link_attr is None else link_attr
++            print(link_attr)
+         except ElementNotFound:
+             # Ignoring Pycharm warning
+             # noinspection PyTypeChecker
+             return None
+ 
+-        title = title_element.text
+-        trend = TrendingTopic(title, desc_element.text, link_attr, tweets_element.text)
++        trend = TrendingTopic(title_element.text, desc_element.text, link_attr, tweets_element.text)
+         return trend
+ 
++    @version1
++    def _get_link_attr_v1(self, a_element):
++        return a_element.get_attribute(self._config.get_prop("link_tag"))
++
++    @version2
++    def _get_link_attr_v2(self, a_element):
++        a_element.click()
++        return self._driver.driver.current_url
++
++    @version1
++    def _get_trend_a_tag_v1(self, item):
++        return item.get_element(self._config.get_prop("trend_a_tag"), By.CSS_SELECTOR)
++
++    @version2
++    def _get_trend_a_tag_v2(self, item):
++        return item
++
++
++    @version2
++    def _setup_page(self):
++        # Only used in v2.
++        first_trend = self._driver.get_element(self._config.get_prop("trend_first_element"), By.CSS_SELECTOR)
++        first_trend.click()
++        time.sleep(1)
++        show_more_btn = self._driver.get_element(self._config.get_prop("trends_show_more_btn"), By.CSS_SELECTOR)
++        show_more_btn.click()
+diff --git a/server/src/trends/trend_filter.py b/server/src/trends/trend_filter.py
+index db0abcc..5c81972 100644
+--- a/server/src/trends/trend_filter.py
++++ b/server/src/trends/trend_filter.py
+@@ -1,7 +1,9 @@
+ import time
+ 
+ from selenium.common.exceptions import TimeoutException
++from selenium.webdriver.common.by import By
+ 
++from decorators import version1, version2
+ import constants
+ from exceptions import LoadingTimeout
+ 
+@@ -13,21 +15,33 @@ class TrendFilter:
+         self._trend = trend
+         self.stream_items = None
+ 
+-    def start(self):
++    def start(self, open_url=True):
+         self._add_filters_to_url()
+ 
+         # Opening trend
+-        self._driver.navigate_to(self._trend.url)
++        if open_url:
++            self._driver.navigate_to(self._trend.url)
++
+         try:
+-            self.stream_items = self._driver.wait_until_load(constants.TWEETS_LIST)
+-            time.sleep(self._config.get("wait_page_load"))
++            st_it = self._get_stream_items_v1()
++            self.stream_items = self._get_stream_items_v2() if st_it is None else st_it
++            time.sleep(self._config.get_prop("wait_page_load", constants.DE_CFG))
+         except TimeoutException:
+             raise LoadingTimeout()
+ 
++    @version1
++    def _get_stream_items_v1(self):
++        return self._driver.wait_until_load(self._config.get_prop("tweets_list"))
++
++    @version2
++    def _get_stream_items_v2(self):
++        return self._driver.wait_until_load(self._config.get_prop("tweets_list"), By.CSS_SELECTOR)
++
++    @version1
+     def _add_filters_to_url(self):
+         # Adding default filter: ?vertical=default
+-        self._trend.url += constants.DEFAULT_FILTER
++        self._trend.url += self._config.get_prop("default_filter")
+         # Adding location filter: &near=me
+-        # self.trend.url += constants.LOCATION_FILTER  # Need to handle when there isn't any tweet
++        # self.trend.url += self._config.get_prop("location_filter") # Need to handle when there isn't any tweet
+         # Adding language filter: &l=es
+-        self._trend.url += constants.LANGUAGE_FILTER
++        self._trend.url += self._config.get_prop("language_filter")
+diff --git a/server/src/tweets/scrapper/default_tweets_scrapper.py b/server/src/tweets/scrapper/default_tweets_scrapper.py
+index 8d86f11..2f4200d 100644
+--- a/server/src/tweets/scrapper/default_tweets_scrapper.py
++++ b/server/src/tweets/scrapper/default_tweets_scrapper.py
+@@ -1,6 +1,10 @@
++from selenium.webdriver.common.by import By
++
++import hashlib
+ import constants
+ from config import Configuration
+ from data import DataManager
++from decorators import version1, version2
+ from driver import Driver
+ from exceptions import ElementNotFound
+ from logger import Logger
+@@ -32,21 +36,30 @@ class DefaultTweetsScrapper(TweetsScrapper):
+     def get_tweets(self):
+         Logger.info("Getting tweets...")
+         trends_gotten = 0
+-        trends_to_get = self._config.get("trends_to_get")
++        trends_to_get = self._config.get_prop("trends_to_get", constants.DE_CFG)
+ 
+         for trend in self._trends_data:
++            obtained_tweets = []
+             trends_gotten += 1
+             Logger.info("---------- From " + trend.title + ": ----------")
+             trend_filter = TrendFilter(self._driver, self._config, trend)
+             trend_filter.start()
+             stream_items = trend_filter.stream_items
+-            self._driver.scroll_to_bottom(self._config.get("times_to_scroll_to_bottom"))
++            scroll_to_bottom = self._config.get_prop("times_to_scroll_to_bottom", constants.DE_CFG)
++            for i in range(0, scroll_to_bottom):
++                # Obtain tweets
++                tweets_obj = self._obtain_tweets_obj(stream_items)
++                tweets_obj = self._obtain_tweets_obj_v2() if tweets_obj is None else tweets_obj
++                for tweet_obj in tweets_obj:
++                    tweet = self._get_tweet_data(tweet_obj)
++                    if tweet:
++                        if not self._was_tweet_added(obtained_tweets, tweet):
++                            trend.tweets.append(tweet)
++
++                self._driver.scroll_to_bottom(1)
++                self._re_init_trend_filter(trend_filter)
++                stream_items = trend_filter.stream_items
+ 
+-            # Obtain tweets
+-            tweets_obj = self._driver.get_elements(constants.TWEET_ITEM, stream_items)
+-            for tweet_obj in tweets_obj:
+-                tweet = self._get_tweet_data(tweet_obj)
+-                trend.tweets.append(tweet)
+             self._trending_topics.append(trend)
+ 
+             if trends_gotten == trends_to_get:
+@@ -55,20 +68,49 @@ class DefaultTweetsScrapper(TweetsScrapper):
+         self._data_manager.set_trending_topics(self._trending_topics)
+         Logger.info("----------------------------------------")
+ 
++    @version2
++    def _re_init_trend_filter(self, trend_filter):
++        trend_filter.start(False)
++
++    @version1
++    def _obtain_tweets_obj(self, stream_items):
++        tweets_obj = self._driver.get_elements(self._config.get_prop("tweet_item"), By.CLASS_NAME, stream_items)
++        return tweets_obj
++
++    @version2
++    def _obtain_tweets_obj_v2(self):
++        tweets_obj = self._driver.get_elements(self._config.get_prop("tweet_item"), By.CLASS_NAME)
++        return tweets_obj
++
++    def _was_tweet_added(self, obtained_tweets, tweet):
++        tweet_id = tweet.text + tweet.user
++        text_hash = hashlib.md5(tweet_id.encode('utf-8')).hexdigest()
++        if text_hash not in obtained_tweets:
++            obtained_tweets.append(text_hash)
++            return False
++
++        return True
++
+     def _get_tweet_data(self, tweet_obj) -> Tweet:
+-        tweet_data = tweet_obj.get_element(constants.TWEET)
+-        tweet_user = tweet_data.get_element(constants.TWEET_USER)
+-        user = tweet_user.get_attribute(constants.LINK_TAG)
+-        tweet_text = tweet_data.get_element(constants.TWEET_TEXT)
+-        text = tweet_text.text
++        tweet_data = self._get_tweet_data_element_v1(tweet_obj)
++        tweet_data = self._get_tweet_data_element_v2(tweet_obj) if tweet_data is None else tweet_data
++        tweet_user = tweet_data.get_element(self._config.get_prop("tweet_user"), By.CSS_SELECTOR)
++        user = tweet_user.get_attribute(self._config.get_prop("link_tag"))
++        text = ""
++        try:
++            tweet_text = tweet_data.get_element(self._config.get_prop("tweet_text"), By.CSS_SELECTOR)
++            text = tweet_text.text
++        except ElementNotFound:
++            Logger.info("Tweet without message")
++
+         images = []
+         Logger.info(text)
+         try:
+-            media_container = tweet_data.get_element(constants.MEDIA_CONTAINER)
+-            tweet_images = media_container.get_elements(constants.IMG_TAG)
++            media_container = tweet_data.get_element(self._config.get_prop("media_container"), By.CSS_SELECTOR)
++            tweet_images = media_container.get_elements(self._config.get_prop("img_tag"))
+ 
+             for img in tweet_images:
+-                image = img.get_attribute(constants.SRC_TAG)
++                image = img.get_attribute(self._config.get_prop("src_tag"))
+                 image = image.replace("'", "")
+                 images.append(image)
+         except ElementNotFound:
+@@ -79,3 +121,13 @@ class DefaultTweetsScrapper(TweetsScrapper):
+         text = text.strip()
+ 
+         return Tweet(user, text, images)
++
++    @version1
++    def _get_tweet_data_element_v1(self, tweet_obj):
++        tweet_data = tweet_obj.get_element(self._config.get_prop("tweet"))
++        return tweet_data
++
++    @version2
++    def _get_tweet_data_element_v2(self, tweet_obj):
++        tweet_data = tweet_obj.get_element(self._config.get_prop("tweet"), By.CSS_SELECTOR)
++        return tweet_data
+diff --git a/server/src/twitter_news/twitter_news.py b/server/src/twitter_news/twitter_news.py
+index 6bd30dc..3045c89 100644
+--- a/server/src/twitter_news/twitter_news.py
++++ b/server/src/twitter_news/twitter_news.py
+@@ -1,9 +1,11 @@
+ import os
+ from subprocess import call
++from time import sleep
+ 
+ import constants
+ from config import Configuration
+ from data import DataManager
++from di import Injector
+ from driver import Driver
+ from logger import Logger
+ from login import Login
+@@ -14,8 +16,9 @@ from tweets.scrapper import TweetsScrapper
+ 
+ 
+ class TwitterNews:
+-    def __init__(self, injector):
+-        self._inj = injector
++    def __init__(self):
++        self._inj = Injector.get_instance()
++        self._inj.load()
+         self._driver = self._inj.get_service(Driver)
+         self._data_manager = self._inj.get_service(DataManager)
+         self._config = self._inj.get_service(Configuration)
+@@ -23,12 +26,13 @@ class TwitterNews:
+     def start(self):
+         self._open_twitter()
+         self._login()
++        self._define_twitter_ui_version()
+         self._get_trends()
+         self._get_tweets_from_trends()
+-        self._analyze_tweets()
+-        self._create_news()
+-        self._show_page()
+-        self._driver.close()
++        #self._analyze_tweets()
++        #self._create_news()
++        #self._show_page()
++        #self._driver.close()
+ 
+     def _open_twitter(self):
+         Logger.info("Opening Twitter...")
+@@ -40,6 +44,10 @@ class TwitterNews:
+         login = self._inj.get_service(Login)
+         login.authenticate()
+ 
++    def _define_twitter_ui_version(self):
++        sleep(3)
++        self._config.define_twitter_ui_version(self._driver.driver.current_url)
++
+     def _get_trends(self):
+         trends_scrapper = self._inj.get_service(TrendsScrapper)
+         trends_scrapper.get_trends()
+diff --git a/server/tests/config/test_configuration.py b/server/tests/config/test_configuration.py
+index 473991e..af6956a 100644
+--- a/server/tests/config/test_configuration.py
++++ b/server/tests/config/test_configuration.py
+@@ -19,25 +19,25 @@ class ConfigurationTest(unittest.TestCase):
+         self._config.load(config_data)
+ 
+     def test_should_be_able_to_get_int_value(self):
+-        self.assertIsInstance(self._config.get("test_value1"), int)
++        self.assertIsInstance(self._config.get_prop("test_value1"), int)
+ 
+     def test_should_be_able_to_get_string_value(self):
+-        self.assertIsInstance(self._config.get("test_value3"), str)
++        self.assertIsInstance(self._config.get_prop("test_value3"), str)
+ 
+     def test_should_be_able_to_get_object_value(self):
+-        self.assertIsInstance(self._config.get("test_value4"), object)
++        self.assertIsInstance(self._config.get_prop("test_value4"), object)
+ 
+     def test_should_get_correct_value(self):
+-        self.assertEqual(self._config.get("test_value1"), 1)
+-        self.assertEqual(self._config.get("test_value2"), 10)
+-        self.assertEqual(self._config.get("test_value3"), "string1")
++        self.assertEqual(self._config.get_prop("test_value1"), 1)
++        self.assertEqual(self._config.get_prop("test_value2"), 10)
++        self.assertEqual(self._config.get_prop("test_value3"), "string1")
+ 
+         test_value4_object = {
+             "sub_test_value1": 2,
+             "sub_test_value2": 20,
+             "sub_test_value3": "string2"
+         }
+-        self.assertEqual(self._config.get("test_value4"), test_value4_object)
++        self.assertEqual(self._config.get_prop("test_value4"), test_value4_object)
+ 
+     def tearDown(self):
+         self._config = None
+diff --git a/server/tests/driver/element/test_element.py b/server/tests/driver/element/test_element.py
+index 792a33c..1637e2a 100644
+--- a/server/tests/driver/element/test_element.py
++++ b/server/tests/driver/element/test_element.py
+@@ -21,16 +21,16 @@ class ElementTest(unittest.TestCase):
+ 
+     def test_should_get_element_from_element(self):
+         self.setup_test()
+-        element = self._driver.get_element("options-bar")
++        element = self._driver.get_element("options-bar",,
+         self._assert_element_obtained(element)
+         # Get element from another element than the driver
+-        element2 = element.get_element("search-the-site")
++        element2 = element.get_element("search-the-site",,
+         self._assert_element_obtained(element2)
+ 
+     def test_should_get_elements_from_element(self):
+         self.setup_test()
+-        element = self._driver.get_element("ul[aria-label='Main Navigation']", None, By.CSS_SELECTOR)
+-        elements = element.get_elements("tier-1", By.CLASS_NAME)
++        element = self._driver.get_element("ul[aria-label='Main Navigation']", By.CSS_SELECTOR, None)
++        elements = element.get_elements("tier-1",, By.CLASS_NAME
+         size = len(elements)
+         self.assertEqual(size, 7)
+         for e in elements:
+@@ -38,19 +38,19 @@ class ElementTest(unittest.TestCase):
+ 
+     def test_should_get_attribute(self):
+         self.setup_test()
+-        element = self._driver.get_element("a[title='The Python Programming Language']", None, By.CSS_SELECTOR)
++        element = self._driver.get_element("a[title='The Python Programming Language']", By.CSS_SELECTOR, None)
+         link_attr = element.get_attribute("href")
+         self.assertEqual(link_attr, "https://www.python.org/")
+ 
+     def test_should_be_able_to_write_into_text_field(self):
+         self.setup_test()
+-        text_field = self._driver.get_element("input[type='search']", None, By.CSS_SELECTOR)
++        text_field = self._driver.get_element("input[type='search']", By.CSS_SELECTOR, None)
+         text_field.write("Testing")
+         self.assertEqual(text_field.get_attribute("value"), "Testing")
+ 
+     def test_should_be_able_to_click_on_button(self):
+         self.setup_test()
+-        button = self._driver.get_element("search-button")
++        button = self._driver.get_element("search-button",,
+         button.click()
+         self.assertEqual(self._driver.driver.current_url, "https://www.python.org/search/?q=&submit=")
+ 
+diff --git a/server/tests/driver/test_driver.py b/server/tests/driver/test_driver.py
+index 1505a0c..36538ea 100644
+--- a/server/tests/driver/test_driver.py
++++ b/server/tests/driver/test_driver.py
+@@ -49,21 +49,21 @@ class DriverTest(unittest.TestCase):
+     def test_should_get_element(self):
+         self.setup_test()
+         # Basic case
+-        element = self._driver.get_element("options-bar")
++        element = self._driver.get_element("options-bar",,
+         self._assert_element_obtained(element)
+         # Get element by css selector
+-        element2 = self._driver.get_element("img[class='python-logo']", None, By.CSS_SELECTOR)
++        element2 = self._driver.get_element("img[class='python-logo']", By.CSS_SELECTOR, None)
+         self._assert_element_obtained(element2)
+ 
+     def test_get_element_should_throw_exception(self):
+         self.setup_test()
+         with self.assertRaises(ElementNotFound) as cm:
+-            self._driver.get_element("non-existent-element")
++            self._driver.get_element("non-existent-element",,
+         print(cm.exception.args[0])
+ 
+     def test_should_get_elements(self):
+         self.setup_test()
+-        elements = self._driver.get_elements("tier-1")
++        elements = self._driver.get_elements("tier-1",,
+         size = len(elements)
+         self.assertEqual(size, 22)
+         for element in elements:
+@@ -71,7 +71,7 @@ class DriverTest(unittest.TestCase):
+ 
+     def test_get_elements_should_be_empty(self):
+         self.setup_test()
+-        elements = self._driver.get_elements("non-existent-element")
++        elements = self._driver.get_elements("non-existent-element",,
+         size = len(elements)
+         self.assertEqual(size, 0)
+ 

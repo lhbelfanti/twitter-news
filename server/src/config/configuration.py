@@ -5,8 +5,11 @@ class Configuration(Injectable):
     def __init__(self):
         super().__init__()
 
-    def get(self, prop):
-        raise NotImplementedError("must define get to use this base class")
+    def define_twitter_ui_version(self, data):
+        raise NotImplementedError("must define define_twitter_ui_version to use this base class")
+
+    def get_prop(self, prop, config):
+        raise NotImplementedError("must define get_prop to use this base class")
 
     # Injectable implementations
     def _define_dependencies(self):

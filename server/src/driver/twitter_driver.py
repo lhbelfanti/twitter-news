@@ -1,4 +1,5 @@
 import time
+import constants
 
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -30,14 +31,14 @@ class TwitterDriver(Driver):
     def create_driver(self):
         # Load the Chrome webdriver
         chrome_options = Options()
-        chrome_options.add_argument("--headless")
+        #chrome_options.add_argument("--headless")
         chrome_options.add_argument("--window-size=1920,1080")
 
         # download the chrome driver from https://sites.google.com/a/chromium.org/chromedriver/downloads
         # and put it as an environment variable
         self._driver = webdriver.Chrome(options=chrome_options, executable_path="chromedriver")
 
-    def get_element(self, element_id, from_item=None, by=By.CLASS_NAME):
+    def get_element(self, element_id, by=By.CLASS_NAME, from_item=None, force_default=False):
         from_item = self._driver if from_item is None else from_item
         elements = from_item.find_elements(by, element_id)
         size = len(elements)
@@ -45,18 +46,21 @@ class TwitterDriver(Driver):
         if size > 0:
             e = elements[0]
             return self._create_element(e, e.tag_name)
+        elif force_default:
+            return self._create_element(None, "tag")
         else:
             raise ElementNotFound()
 
-    def get_elements(self, element_id, from_item=None, by=By.CLASS_NAME):
+    def get_elements(self, element_id, by=By.CLASS_NAME, from_item=None):
         from_item = self._driver if from_item is None else from_item
         items = from_item.find_elements(by, element_id)
         elements = self._create_elements(items)
         return elements
 
     def wait_until_load(self, element_id, by=By.CLASS_NAME):
-        return WebDriverWait(self._driver, self._config.get("loading_timeout")).until(
-            Ec.element_to_be_clickable((by, element_id)))
+        return WebDriverWait(self._driver,
+                             self._config.get_prop("loading_timeout", constants.DE_CFG)
+                             ).until(Ec.element_to_be_clickable((by, element_id)))
 
     def navigate_to(self, url):
         self._driver.get(url)
@@ -70,7 +74,7 @@ class TwitterDriver(Driver):
             # Scroll down to bottom
             self._driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
             # Wait to load page
-            time.sleep(self._config.get("scroll_pause_time"))
+            time.sleep(self._config.get_prop("scroll_pause_time", constants.DE_CFG))
             # Calculate new scroll height and compare with last scroll height
             new_height = self._driver.execute_script("return document.body.scrollHeight")
             if new_height == last_height:

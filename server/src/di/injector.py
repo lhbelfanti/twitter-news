@@ -1,4 +1,6 @@
 import importlib
+import constants
+import json
 
 from di import Injectable
 from exceptions import ServiceNotFound, CircularDependency, NonExistentService, InjectableNotImplemented
@@ -6,8 +8,17 @@ from exceptions import ServiceNotFound, CircularDependency, NonExistentService, 
 
 class Injector(object):
 
-    def __init__(self, di_config):
-        self._di = di_config
+    _instance = None
+
+    @classmethod
+    def get_instance(cls):
+        if not cls._instance:
+            cls._instance = cls()
+        return cls._instance
+
+    def __init__(self):
+        with open(constants.DI_JSON) as config_file:
+            self._di = json.load(config_file)
         self._services = {}
 
     def load(self):

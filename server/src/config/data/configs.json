@@ -1,0 +1,4 @@
+{
+  "default_config": "./data/default_config.json",
+  "selenium_config": "./data/selenium_config.json"
+}

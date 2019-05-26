@@ -49,21 +49,21 @@ class DriverTest(unittest.TestCase):
     def test_should_get_element(self):
         self.setup_test()
         # Basic case
-        element = self._driver.get_element("options-bar")
+        element = self._driver.get_element("options-bar",,
         self._assert_element_obtained(element)
         # Get element by css selector
-        element2 = self._driver.get_element("img[class='python-logo']", None, By.CSS_SELECTOR)
+        element2 = self._driver.get_element("img[class='python-logo']", By.CSS_SELECTOR, None)
         self._assert_element_obtained(element2)
 
     def test_get_element_should_throw_exception(self):
         self.setup_test()
         with self.assertRaises(ElementNotFound) as cm:
-            self._driver.get_element("non-existent-element")
+            self._driver.get_element("non-existent-element",,
         print(cm.exception.args[0])
 
     def test_should_get_elements(self):
         self.setup_test()
-        elements = self._driver.get_elements("tier-1")
+        elements = self._driver.get_elements("tier-1",,
         size = len(elements)
         self.assertEqual(size, 22)
         for element in elements:
@@ -71,7 +71,7 @@ class DriverTest(unittest.TestCase):
 
     def test_get_elements_should_be_empty(self):
         self.setup_test()
-        elements = self._driver.get_elements("non-existent-element")
+        elements = self._driver.get_elements("non-existent-element",,
         size = len(elements)
         self.assertEqual(size, 0)
 
