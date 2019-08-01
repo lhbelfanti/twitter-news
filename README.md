@@ -1,7 +1,8 @@
 # Twitter News
 
 **Twitter News** is an application that gets the most popular tweets of the moment and makes news based on them.
-08/01/2018: It's not working due the recent update of the Twitter UI. It needs to be adapted to support it.
+
+**08/01/2018**: It's not working due the recent update of the Twitter UI. It needs to be adapted to support it.
 
 
 ## Client-Server
