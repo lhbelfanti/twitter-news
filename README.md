@@ -1,9 +1,21 @@
-# Twitter News
+<div align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="media/twitter-news-dark.png">
+    <source media="(prefers-color-scheme: light)" srcset="media/twitter-news-light.png">
+    <img alt="Twitter News - An application to get the tweets from a trending topic and convert them into news." src="media/twitter-news-dark.png">
+  </picture>
 
-**Twitter News** is an application that gets the most popular tweets of the moment and makes news based on them.
+  <br />
 
-**08/01/2019**: It's not working due the recent update of the Twitter UI. It needs to be adapted to support it.
+  ![GitHub repo size](https://img.shields.io/github/repo-size/lhbelfanti/twitter-news?style=for-the-badge)
+  ![License](https://img.shields.io/github/license/lhbelfanti/twitter-news?style=for-the-badge)
+</div>
 
+> **Warning**
+> **08/01/2019**: This application is not working since the update of the Twitter UI. It needs to be adapted to support it.
+
+
+# Content
 
 ## Client-Server
 
@@ -58,3 +70,8 @@ To run the client go to the _client_ folder and run
 npm start
 ```
 > **Note:** Should not be necessary to manually run it. The client is automatically called after the server finishes its work.
+
+---
+## License
+
+[MIT](https://choosealicense.com/licenses/mit/)
