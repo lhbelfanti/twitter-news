@@ -2,7 +2,7 @@
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="media/twitter-news-dark.png">
     <source media="(prefers-color-scheme: light)" srcset="media/twitter-news-light.png">
-    <img alt="Twitter News - An application to get the tweets from a trending topic and convert them into news." src="media/twitter-news-dark.png">
+    <img alt="Twitter News - Application that converts the tweets from the trending topics into news." src="media/twitter-news-dark.png">
   </picture>
 
   <br />
