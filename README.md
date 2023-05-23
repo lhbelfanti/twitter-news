@@ -14,9 +14,6 @@
 > **Warning**
 > **08/01/2019**: This application is not working since the update of the Twitter UI. It needs to be adapted to support it.
 
-
-# Content
-
 ## Client-Server
 
 This application is divided in 2 parts:
