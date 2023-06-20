@@ -1,19 +1,18 @@
-<div align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="media/twitter-news-dark.png">
-    <source media="(prefers-color-scheme: light)" srcset="media/twitter-news-light.png">
-    <img alt="Twitter News - Application that converts the tweets from the trending topics into news." src="media/twitter-news-dark.png">
-  </picture>
-
-  <br />
-
-  ![GitHub repo size](https://img.shields.io/github/repo-size/lhbelfanti/twitter-news?style=for-the-badge)
-  ![License](https://img.shields.io/github/license/lhbelfanti/twitter-news?style=for-the-badge)
-</div>
+<p align="center">
+  <img src="media/twitter-news-logo.png" width="100" alt="Repository logo" />
+</p>
+<h3 align="center">Twitter News</h3>
+<p align="center">Application that converts the tweets from the trending topics into news<p>
+<p align="center">
+    <img src="https://img.shields.io/github/repo-size/lhbelfanti/twitter-news?label=Repo%20size" alt="Repo size" />
+    <img src="https://img.shields.io/github/license/lhbelfanti/twitter-news?label=License" alt="License" />
+    <img src="https://img.shields.io/badge/Status-Need_to_be_updated-orange" alt="Status" />
+</p>
 
 > **Warning**
 > **08/01/2019**: This application is not working since the update of the Twitter UI. It needs to be adapted to support it.
 
+---
 ## Client-Server
 
 This application is divided in 2 parts:
